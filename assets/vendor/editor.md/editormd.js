@@ -94,6 +94,8 @@ if (typeof mermaid_counter === "undefined") {
       "reference-link",
       "image",
       "youtube",
+      "movie",
+      "|",
       "code",
       "preformatted-text",
       "code-block",
@@ -209,6 +211,8 @@ if (typeof mermaid_counter === "undefined") {
     crossDomainUpload: false,
     uploadCallbackURL: "",
 
+    movieFormats: ["mp4", "webm", "ogg", "ogv"],
+
     toc: true, // Table of contents
     tocm: false, // Using [TOCM], auto create ToC dropdown menu
     tocTitle: "", // for ToC dropdown menu btn
@@ -270,6 +274,7 @@ if (typeof mermaid_counter === "undefined") {
       "reference-link": "fa-anchor",
       image: "fa-picture-o",
       youtube: "fa-youtube-play",
+      movie: "fa-file-video-o",
       code: "fa-code",
       "preformatted-text": "fa-file-code-o",
       "code-block": "fa-file-code-o",
@@ -374,6 +379,13 @@ if (typeof mermaid_counter === "undefined") {
           urlTitle: "标题",
           urlEmpty: "错误：请填写链接地址。",
           urlError: "错误：链接地址不正确。",
+        },
+        movie: {
+          title: "影片上传",
+          file: "文件",
+          uploadButton: "上传",
+          formatNotAllowed:
+            "错误: 只允许上传视频文件，允许上传的视频文件格式有:",
         },
         preformattedText: {
           title: "添加预格式文本或代码块",
@@ -3328,6 +3340,9 @@ if (typeof mermaid_counter === "undefined") {
 
     youtube: function () {
       this.executePlugin("youtubeDialog", "youtube-dialog/youtube-dialog");
+    },
+    movie: function () {
+      this.executePlugin("movieDialog", "movie-dialog/movie-dialog");
     },
 
     code: function () {

@@ -48,6 +48,8 @@ var spellcheck_lang = "en_US";
       tocDropdown: false,
       atLink: false,
       imagePasteCallback: config.image_paste_callback,
+      movieUpload: config.support_movie_upload === "yes",
+      movieUploadCallback: config.movie_upload_callback,
       toolbarIcons: function () {
         return [
           "undo",
@@ -75,6 +77,7 @@ var spellcheck_lang = "en_US";
           "reference-link",
           "image",
           "youtube",
+          config.support_movie_upload === "yes" ? "movie" : "|",
           "code",
           "code-block",
           "table",
@@ -82,7 +85,7 @@ var spellcheck_lang = "en_US";
           "html-entities",
           "more",
           "pagebreak",
-          config.support_emoji === "yes" ? "emoji" : "" + "|",
+          config.support_emoji === "yes" ? "emoji" : "|",
           "watch",
           "preview",
           "fullscreen",
@@ -152,6 +155,7 @@ var spellcheck_lang = "en_US";
           "align-left": "Left-aligned",
           "align-center": "Center-aligned",
           "align-right": "Right-aligned",
+          movie: "Movie Upload",
         },
       },
     };

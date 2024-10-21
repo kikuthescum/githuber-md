@@ -84,6 +84,13 @@
           urlEmpty: "Error: Please fill in the link address.",
           urlError: "Error: The link address is incorrect.",
         },
+        movie: {
+          title: "Movie Upload",
+          file: "File",
+          uploadButton: "Upload",
+          formatNotAllowed:
+            "Error: only allows to upload video files, upload allowed video file formats:",
+        },
         preformattedText: {
           title: "Preformatted text / Codes",
           emptyAlert:

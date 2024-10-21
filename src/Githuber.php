@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Class Githuber
  *
@@ -17,7 +18,8 @@ use Githuber\Controller\Monolog as Monolog;
 /**
  * Main class.
  */
-class Githuber {
+class Githuber
+{
 
 	/**
 	 * Current browsing URL.
@@ -29,13 +31,14 @@ class Githuber {
 	/**
 	 * Constructer.
 	 */
-	public function __construct() {
+	public function __construct()
+	{
 
-		add_action( 'init', array( $this, 'load_textdomain' ) );
-		add_action( 'wp_enqueue_scripts', array( $this, 'front_enqueue_styles' ) );
-		add_action( 'wp_print_footer_scripts', array( $this, 'front_print_footer_scripts' ) );
+		add_action('init', array($this, 'load_textdomain'));
+		add_action('wp_enqueue_scripts', array($this, 'front_enqueue_styles'));
+		add_action('wp_print_footer_scripts', array($this, 'front_print_footer_scripts'));
 
-		if ( ! isset( $_SERVER['HTTP_HOST'] ) || ! isset( $_SERVER['REQUEST_URI'] ) ) {
+		if (! isset($_SERVER['HTTP_HOST']) || ! isset($_SERVER['REQUEST_URI'])) {
 			$_SERVER['HTTP_HOST']   = '127.0.0.1';
 			$_SERVER['REQUEST_URI'] = '/';
 		}
@@ -52,27 +55,27 @@ class Githuber {
 		);
 
 		// If in Admin Panel and WordPress > 5.0, load Class editor and disable Gutenberg editor.
-		if ( $GLOBALS['wp_version'] > '5.0' && is_admin() ) {
-			add_filter( 'use_block_editor_for_post', '__return_false', 5 );
+		if ($GLOBALS['wp_version'] > '5.0' && is_admin()) {
+			add_filter('use_block_editor_for_post', '__return_false', 5);
 		}
 
 		// Load TOC widget. //
-		if ( 'yes' === githuber_get_option( 'support_toc', 'githuber_modules' ) ) {
-			if ( 'yes' === githuber_get_option( 'is_toc_widget', 'githuber_modules' ) ) {
+		if ('yes' === githuber_get_option('support_toc', 'githuber_modules')) {
+			if ('yes' === githuber_get_option('is_toc_widget', 'githuber_modules')) {
 				add_action(
 					'widgets_init',
 					function () {
-						register_widget( 'Githuber_Widget_Toc' );
+						register_widget('Githuber_Widget_Toc');
 					}
 				);
 			}
 		}
 
 		// Load core functions when `wp_loaded` is ready.
-		add_action( 'wp_loaded', array( $this, 'init' ) );
+		add_action('wp_loaded', array($this, 'init'));
 
 		// Only use it in DEBUG mode.
-		githuber_logger( 'Hook: wp_loaded', array( 'url' => $this->current_url ) );
+		githuber_logger('Hook: wp_loaded', array('url' => $this->current_url));
 	}
 
 	/**
@@ -80,10 +83,11 @@ class Githuber {
 	 *
 	 * @return void
 	 */
-	public function init() {
+	public function init()
+	{
 
 		// Only load controllers in backend.
-		if ( is_admin() ) {
+		if (is_admin()) {
 
 			$register = new Controller\Register();
 			$register->init();
@@ -91,22 +95,27 @@ class Githuber {
 			$setting = new Controller\Setting();
 			$setting->init();
 
-			if ( 'yes' === githuber_get_option( 'support_image_paste', 'githuber_modules' ) ) {
+			if ('yes' === githuber_get_option('support_image_paste', 'githuber_modules')) {
 				$image_paste = new Controller\ImagePaste();
 				$image_paste->init();
 			}
 
-			if ( 'yes' === githuber_get_option( 'editor_html_decode', 'githuber_markdown' ) ) {
+			if ('yes' === githuber_get_option('support_movie_upload', 'githuber_modules')) {
+				$movie_upload = new Controller\MovieUpload();
+				$movie_upload->init();
+			}
+
+			if ('yes' === githuber_get_option('editor_html_decode', 'githuber_markdown')) {
 				$custom_media_library = new Controller\CustomMediaLibrary();
 				$custom_media_library->init();
 			}
 
-			if ( 'yes' === githuber_get_option( 'editor_spell_check', 'githuber_markdown' ) ) {
+			if ('yes' === githuber_get_option('editor_spell_check', 'githuber_markdown')) {
 				$spell_check = new Controller\SpellCheck();
 				$spell_check->init();
 			}
 
-			if ( 'yes' === githuber_get_option( 'keyword_suggestion_tool', 'githuber_markdown' ) ) {
+			if ('yes' === githuber_get_option('keyword_suggestion_tool', 'githuber_markdown')) {
 				$keyword_suggestion = new Controller\KeywordSuggestion();
 				$keyword_suggestion->init();
 			}
@@ -120,61 +129,61 @@ class Githuber {
 		 */
 
 		// Module Name: FlowChart
-		if ( 'yes' === githuber_get_option( 'support_flowchart', 'githuber_modules' ) ) {
+		if ('yes' === githuber_get_option('support_flowchart', 'githuber_modules')) {
 			$module_flowchart = new Module\FlowChart();
 			$module_flowchart->init();
 		}
 
 		// Module Name: KaTeX
-		if ( 'yes' === githuber_get_option( 'support_katex', 'githuber_modules' ) ) {
+		if ('yes' === githuber_get_option('support_katex', 'githuber_modules')) {
 			$module_katex = new Module\KaTeX();
 			$module_katex->init();
 		}
 
 		// Module Name: Sequence Diagram
-		if ( 'yes' === githuber_get_option( 'support_sequence_diagram', 'githuber_modules' ) ) {
+		if ('yes' === githuber_get_option('support_sequence_diagram', 'githuber_modules')) {
 			$module_sequence = new Module\SequenceDiagram();
 			$module_sequence->init();
 		}
 
 		// Module Name: Mermaid
-		if ( 'yes' === githuber_get_option( 'support_mermaid', 'githuber_modules' ) ) {
+		if ('yes' === githuber_get_option('support_mermaid', 'githuber_modules')) {
 			$module_mermaid = new Module\Mermaid();
 			$module_mermaid->init();
 		}
 
 		// Module Name: Prism
-		if ( 'yes' === githuber_get_option( 'support_prism', 'githuber_modules' ) ) {
+		if ('yes' === githuber_get_option('support_prism', 'githuber_modules')) {
 			$module_prism = new Module\Prism();
 			$module_prism->init();
 		}
 
 		// Module Name: Highlight
-		if ( 'yes' === githuber_get_option( 'support_highlight', 'githuber_modules' ) ) {
+		if ('yes' === githuber_get_option('support_highlight', 'githuber_modules')) {
 			$module_highlight = new Module\Highlight();
 			$module_highlight->init();
 		}
 
 		// Module Name: MathJax
-		if ( 'yes' === githuber_get_option( 'support_mathjax', 'githuber_modules' ) ) {
+		if ('yes' === githuber_get_option('support_mathjax', 'githuber_modules')) {
 			$module_mathjax = new Module\MathJax();
 			$module_mathjax->init();
 		}
 
 		// Replace `&amp;` to `&` in URLs in post content.
-		if ( 'yes' === githuber_get_option( 'support_toc', 'githuber_modules' ) ) {
+		if ('yes' === githuber_get_option('support_toc', 'githuber_modules')) {
 			$module_toc = new Module\Toc();
 			$module_toc->init();
 		}
 
 		// Copy to Clipboard
-		if ( 'yes' === githuber_get_option( 'support_clipboard', 'githuber_modules' ) ) {
+		if ('yes' === githuber_get_option('support_clipboard', 'githuber_modules')) {
 			$module_clipboard = new Module\Clipboard();
 			$module_clipboard->init();
 		}
 
 		// Emojify
-		if ( 'yes' === githuber_get_option( 'support_emojify', 'githuber_modules' ) ) {
+		if ('yes' === githuber_get_option('support_emojify', 'githuber_modules')) {
 			$module_emojify = new Module\Emojify();
 			$module_emojify->init();
 		}
@@ -183,19 +192,19 @@ class Githuber {
 		 * Let's start setting user's perferences...
 		 */
 
-		if ( 'yes' !== githuber_get_option( 'smart_quotes', 'githuber_preferences' ) ) {
-			remove_filter( 'the_content', 'wptexturize' );
+		if ('yes' !== githuber_get_option('smart_quotes', 'githuber_preferences')) {
+			remove_filter('the_content', 'wptexturize');
 		}
 
 		// Replace `&amp;` to `&` in URLs in post content.
-		if ( 'yes' === githuber_get_option( 'restore_ampersands', 'githuber_preferences' ) ) {
+		if ('yes' === githuber_get_option('restore_ampersands', 'githuber_preferences')) {
 			add_filter(
 				'the_content',
-				function( $string ) {
+				function ($string) {
 					return preg_replace_callback(
 						'|<a\b([^>]*)>(.*?)</a>|',
-						function ( $matches ) {
-							return '<a' . str_replace( '&amp;', '&', $matches[1] ) . '>' . $matches[2] . '</a>';
+						function ($matches) {
+							return '<a' . str_replace('&amp;', '&', $matches[1]) . '>' . $matches[2] . '</a>';
 						},
 						$string
 					);
@@ -211,8 +220,9 @@ class Githuber {
 	 *
 	 * @return void
 	 */
-	public function load_textdomain() {
-		load_plugin_textdomain( GITHUBER_PLUGIN_TEXT_DOMAIN, false, GITHUBER_PLUGIN_LANGUAGE_PACK ); 
+	public function load_textdomain()
+	{
+		load_plugin_textdomain(GITHUBER_PLUGIN_TEXT_DOMAIN, false, GITHUBER_PLUGIN_LANGUAGE_PACK);
 	}
 
 	/**
@@ -220,10 +230,11 @@ class Githuber {
 	 *
 	 * @return void
 	 */
-	public function front_enqueue_styles() {
-		wp_register_style( 'md-style', false );
-		wp_enqueue_style( 'md-style' );
-		wp_add_inline_style( 'md-style', $this->get_front_enqueue_styles() );
+	public function front_enqueue_styles()
+	{
+		wp_register_style('md-style', false);
+		wp_enqueue_style('md-style');
+		wp_add_inline_style('md-style', $this->get_front_enqueue_styles());
 	}
 
 	/**
@@ -231,9 +242,10 @@ class Githuber {
 	 *
 	 * @return string
 	 */
-	public function get_front_enqueue_styles() {
-		$custom_css = githuber_load_view( 'assets/css' );
-		return preg_replace( '/\s+/', ' ', $custom_css );
+	public function get_front_enqueue_styles()
+	{
+		$custom_css = githuber_load_view('assets/css');
+		return preg_replace('/\s+/', ' ', $custom_css);
 	}
 
 	/**
@@ -241,10 +253,10 @@ class Githuber {
 	 *
 	 * @return void
 	 */
-	public function front_print_footer_scripts() {
-		$script = githuber_load_view( 'assets/js' );
-		$script = preg_replace( '/\s+/', ' ', $script );
+	public function front_print_footer_scripts()
+	{
+		$script = githuber_load_view('assets/js');
+		$script = preg_replace('/\s+/', ' ', $script);
 		echo $script;
 	}
 }
-

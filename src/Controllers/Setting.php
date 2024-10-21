@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Class Setting
  *
@@ -15,7 +16,8 @@ namespace Githuber\Controller;
 /**
  * The setting controller.
  */
-class Setting extends ControllerAbstract {
+class Setting extends ControllerAbstract
+{
 
 	/**
 	 * The settings.
@@ -48,10 +50,11 @@ class Setting extends ControllerAbstract {
 	/**
 	 * Constructer.
 	 */
-	public function __construct() {
+	public function __construct()
+	{
 		parent::__construct();
 
-		if ( ! self::$setting_api ) {
+		if (! self::$setting_api) {
 			self::$setting_api = new \Githuber_Settings_API();
 		}
 	}
@@ -59,12 +62,13 @@ class Setting extends ControllerAbstract {
 	/**
 	 * Initialize.
 	 */
-	public function init() {
-		add_action( 'admin_init', array( $this, 'setting_admin_init' ) );
-		add_action( 'admin_menu', array( $this, 'setting_admin_menu' ) );
-		add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_styles' ) );
-		add_filter( 'plugin_action_links_' . $this->githuber_plugin_name, array( $this, 'plugin_action_links' ), 10, 5 );
-		add_filter( 'plugin_row_meta', array( $this, 'plugin_extend_links' ), 10, 2 );
+	public function init()
+	{
+		add_action('admin_init', array($this, 'setting_admin_init'));
+		add_action('admin_menu', array($this, 'setting_admin_menu'));
+		add_action('admin_enqueue_scripts', array($this, 'admin_enqueue_styles'));
+		add_filter('plugin_action_links_' . $this->githuber_plugin_name, array($this, 'plugin_action_links'), 10, 5);
+		add_filter('plugin_row_meta', array($this, 'plugin_extend_links'), 10, 2);
 	}
 
 	/**
@@ -72,9 +76,10 @@ class Setting extends ControllerAbstract {
 	 *
 	 * @param string $hook_suffix The hook suffix.
 	 */
-	public function admin_enqueue_styles( $hook_suffix ) {
+	public function admin_enqueue_styles($hook_suffix)
+	{
 
-		if ( false === strpos( $hook_suffix, 'githuber-md' ) ) {
+		if (false === strpos($hook_suffix, 'githuber-md')) {
 			return;
 		}
 		// wp_enqueue_style( 'custom_wp_admin_css', $this->githuber_plugin_url . 'assets/css/admin-style.css', array(), $this->version, 'all' );
@@ -85,37 +90,36 @@ class Setting extends ControllerAbstract {
 	 *
 	 * @param string $hook_suffix The hook suffix.
 	 */
-	public function admin_enqueue_scripts( $hook_suffix ) {
-
-	}
+	public function admin_enqueue_scripts($hook_suffix) {}
 
 	/**
 	 * The Githuber setting page, sections and fields.
 	 */
-	public function setting_admin_init() {
+	public function setting_admin_init()
+	{
 
 		// set sections and fields.
-		self::$setting_api->set_sections( $this->get_sections() );
+		self::$setting_api->set_sections($this->get_sections());
 
 		$settings = $this->get_fields();
 
-		if ( $GLOBALS['wp_version'] < '4.5' ) {
+		if ($GLOBALS['wp_version'] < '4.5') {
 			// sequence_diagram uses underscore.js, and it has some conflict issues with WordPress's plupload uploader in older vision.
 			// So, we hide this option in older version.
-			foreach ( $settings['githuber_markdown'] as $k => $v ) {
-				if ( 'support_sequence_diagram' === $v['name'] ) {
-					unset( $settings['githuber_markdown'][ $k ] );
+			foreach ($settings['githuber_markdown'] as $k => $v) {
+				if ('support_sequence_diagram' === $v['name']) {
+					unset($settings['githuber_markdown'][$k]);
 				}
 			}
-			foreach ( $settings['githuber_modules'] as $k => $v ) {
-				if ( 'sequence_diagram_src' === $v['name'] ) {
-					unset( $settings['githuber_modules'][ $k - 1 ] );
-					unset( $settings['githuber_modules'][ $k ] );
+			foreach ($settings['githuber_modules'] as $k => $v) {
+				if ('sequence_diagram_src' === $v['name']) {
+					unset($settings['githuber_modules'][$k - 1]);
+					unset($settings['githuber_modules'][$k]);
 				}
 			}
 		}
 
-		self::$setting_api->set_fields( $settings );
+		self::$setting_api->set_fields($settings);
 
 		// initialize them.
 		self::$setting_api->admin_init();
@@ -128,33 +132,34 @@ class Setting extends ControllerAbstract {
 	 *
 	 * @return array
 	 */
-	public function get_sections() {
+	public function get_sections()
+	{
 
 		return array(
 
 			array(
 				'id'    => 'githuber_markdown',
-				'title' => __( 'Markdown', 'wp-githuber-md' ),
+				'title' => __('Markdown', 'wp-githuber-md'),
 			),
 
 			array(
 				'id'    => 'githuber_modules',
-				'title' => __( 'Modules', 'wp-githuber-md' ),
+				'title' => __('Modules', 'wp-githuber-md'),
 			),
 
 			array(
 				'id'    => 'githuber_extensions',
-				'title' => __( 'Extensions', 'wp-githuber-md' ),
+				'title' => __('Extensions', 'wp-githuber-md'),
 			),
 
 			array(
 				'id'    => 'githuber_preferences',
-				'title' => __( 'Preferences', 'wp-githuber-md' ),
+				'title' => __('Preferences', 'wp-githuber-md'),
 			),
 
 			array(
 				'id'    => 'githuber_about',
-				'title' => __( 'About', 'wp-githuber-md' ),
+				'title' => __('About', 'wp-githuber-md'),
 			),
 		);
 	}
@@ -164,15 +169,16 @@ class Setting extends ControllerAbstract {
 	 *
 	 * @return array
 	 */
-	public function get_fields() {
+	public function get_fields()
+	{
 
-		$support_post_types = get_post_types( array( 'public' => true ), 'objects' );
+		$support_post_types = get_post_types(array('public' => true), 'objects');
 
 		$post_type_options = array();
 
-		foreach ( $support_post_types as $post_type ) {
-			if ( 'attachment' !== $post_type->name ) {
-				$post_type_options[ $post_type->name ] = $post_type->label;
+		foreach ($support_post_types as $post_type) {
+			if ('attachment' !== $post_type->name) {
+				$post_type_options[$post_type->name] = $post_type->label;
 			}
 		}
 
@@ -228,11 +234,11 @@ class Setting extends ControllerAbstract {
 			'vi_VN' => 'vi_VN',
 		);
 
-		if ( array_key_exists( $system_lang, $spellcheck_lang_list ) ) {
+		if (array_key_exists($system_lang, $spellcheck_lang_list)) {
 			$default_spellcheck_lang = $system_lang;
-			$spellcheck_warning      = '<br /><span style="color: #0081ab">' . __( 'Your system language is supported.', 'wp-githuber-md' ) . ' (' . $system_lang . ')</span>';
+			$spellcheck_warning      = '<br /><span style="color: #0081ab">' . __('Your system language is supported.', 'wp-githuber-md') . ' (' . $system_lang . ')</span>';
 		} else {
-			$spellcheck_warning = '<br /><span style="color: #b00000">' . __( 'Your system language is not supported.', 'wp-githuber-md' ) . ' (' . $system_lang . ')</span>';
+			$spellcheck_warning = '<br /><span style="color: #b00000">' . __('Your system language is not supported.', 'wp-githuber-md') . ' (' . $system_lang . ')</span>';
 		}
 
 		return array(
@@ -241,13 +247,13 @@ class Setting extends ControllerAbstract {
 
 				array(
 					'section_title' => true,
-					'label'         => __( 'Writing', 'wp-githuber-md' ),
+					'label'         => __('Writing', 'wp-githuber-md'),
 				),
 
 				array(
 					'name'    => 'enable_markdown_for_post_types',
-					'label'   => __( 'Enable', 'wp-githuber-md' ),
-					'desc'    => __( 'Which post types you would like to enable Markdown editor for.', 'wp-githuber-md' ),
+					'label'   => __('Enable', 'wp-githuber-md'),
+					'desc'    => __('Which post types you would like to enable Markdown editor for.', 'wp-githuber-md'),
 					'type'    => 'multicheck',
 					'options' => $post_type_options,
 					'default' => array(
@@ -258,8 +264,8 @@ class Setting extends ControllerAbstract {
 
 				array(
 					'name'    => 'disable_revision',
-					'label'   => __( 'Disable Revision', 'wp-githuber-md' ),
-					'desc'    => __( 'If you think the revision function is annoying when you\'re writing, you can disable it.', 'wp-githuber-md' ),
+					'label'   => __('Disable Revision', 'wp-githuber-md'),
+					'desc'    => __('If you think the revision function is annoying when you\'re writing, you can disable it.', 'wp-githuber-md'),
 					'type'    => 'toggle',
 					'size'    => 'sm',
 					'default' => 'no',
@@ -268,8 +274,8 @@ class Setting extends ControllerAbstract {
 				array(
 					'name'    => 'disable_autosave',
 					'class'   => 'disable_autosave',
-					'label'   => __( 'Disable Auto-save', 'wp-githuber-md' ),
-					'desc'    => __( 'If you think the auto-save function is annoying when you\'re writing, you can disable it.', 'wp-githuber-md' ),
+					'label'   => __('Disable Auto-save', 'wp-githuber-md'),
+					'desc'    => __('If you think the auto-save function is annoying when you\'re writing, you can disable it.', 'wp-githuber-md'),
 					'type'    => 'toggle',
 					'size'    => 'sm',
 					'default' => 'yes',
@@ -277,8 +283,8 @@ class Setting extends ControllerAbstract {
 
 				array(
 					'name'    => 'editor_spell_check',
-					'label'   => __( 'Spell Check', 'wp-githuber-md' ),
-					'desc'    => __( 'Enable spell check on the input. (This feature does not apply to code blocks.)', 'wp-githuber-md' ),
+					'label'   => __('Spell Check', 'wp-githuber-md'),
+					'desc'    => __('Enable spell check on the input. (This feature does not apply to code blocks.)', 'wp-githuber-md'),
 					'type'    => 'toggle',
 					'size'    => 'sm',
 					'default' => 'no',
@@ -286,8 +292,8 @@ class Setting extends ControllerAbstract {
 
 				array(
 					'name'    => 'editor_spell_check_lang',
-					'label'   => __( 'Language', 'wp-githuber-md' ),
-					'desc'    => __( 'Please specify your language for spell check in the setting above.', 'wp-githuber-md' ) . $spellcheck_warning,
+					'label'   => __('Language', 'wp-githuber-md'),
+					'desc'    => __('Please specify your language for spell check in the setting above.', 'wp-githuber-md') . $spellcheck_warning,
 					'type'    => 'select',
 					'default' => $default_spellcheck_lang,
 					'options' => $spellcheck_lang_list,
@@ -295,22 +301,22 @@ class Setting extends ControllerAbstract {
 
 				array(
 					'name'    => 'editor_match_highlighter',
-					'label'   => __( 'Match Highlighter', 'wp-githuber-md' ),
-					'desc'    => __( 'Everywhere else in your text where <strong>current word</strong> appears will automatically illuminate.', 'wp-githuber-md' ),
+					'label'   => __('Match Highlighter', 'wp-githuber-md'),
+					'desc'    => __('Everywhere else in your text where <strong>current word</strong> appears will automatically illuminate.', 'wp-githuber-md'),
 					'type'    => 'toggle',
 					'default' => 'no',
 				),
 
 				array(
 					'section_title' => true,
-					'label'         => __( 'Meta Boxes', 'wp-githuber-md' ),
+					'label'         => __('Meta Boxes', 'wp-githuber-md'),
 				),
 
 				array(
 					'name'    => 'html_to_markdown',
 					'class'   => 'html_to_markdown',
-					'label'   => __( 'HTML-to-Markdown', 'wp-githuber-md' ),
-					'desc'    => githuber_load_view( 'setting/html-to-markdown' ),
+					'label'   => __('HTML-to-Markdown', 'wp-githuber-md'),
+					'desc'    => githuber_load_view('setting/html-to-markdown'),
 					'type'    => 'toggle',
 					'size'    => 'sm',
 					'default' => 'yes',
@@ -319,8 +325,8 @@ class Setting extends ControllerAbstract {
 				array(
 					'name'    => 'markdown_editor_switcher',
 					'class'   => 'markdown_editor_switcher',
-					'label'   => __( 'Markdown Editor Switcher', 'wp-githuber-md' ),
-					'desc'    => githuber_load_view( 'setting/markdown-editor-switcher' ),
+					'label'   => __('Markdown Editor Switcher', 'wp-githuber-md'),
+					'desc'    => githuber_load_view('setting/markdown-editor-switcher'),
 					'type'    => 'toggle',
 					'size'    => 'sm',
 					'default' => 'yes',
@@ -329,8 +335,8 @@ class Setting extends ControllerAbstract {
 				array(
 					'name'    => 'fetch_remote_image',
 					'class'   => 'fetch_remote_image',
-					'label'   => __( 'Fetch Remote Image', 'wp-githuber-md' ),
-					'desc'    => __( 'A remote image means that it is not a URL from your site. This option allows you to fetch remote images and save them into local folder.', 'wp-githuber-md' ),
+					'label'   => __('Fetch Remote Image', 'wp-githuber-md'),
+					'desc'    => __('A remote image means that it is not a URL from your site. This option allows you to fetch remote images and save them into local folder.', 'wp-githuber-md'),
 					'type'    => 'toggle',
 					'size'    => 'sm',
 					'default' => 'no',
@@ -339,8 +345,8 @@ class Setting extends ControllerAbstract {
 				array(
 					'name'    => 'keyword_suggestion_tool',
 					'class'   => 'keyword_suggestion_tool',
-					'label'   => __( 'Keyword Suggestion Tool', 'wp-githuber-md' ),
-					'desc'    => __( 'This keyword suggestion tool can give you a list of long-tail terms based on the keyword you enter. If you are good in On-page SEO skills, it will help you a lot in writing. Data source is from Google Suggestions.', 'wp-githuber-md' ),
+					'label'   => __('Keyword Suggestion Tool', 'wp-githuber-md'),
+					'desc'    => __('This keyword suggestion tool can give you a list of long-tail terms based on the keyword you enter. If you are good in On-page SEO skills, it will help you a lot in writing. Data source is from Google Suggestions.', 'wp-githuber-md'),
 					'type'    => 'toggle',
 					'size'    => 'sm',
 					'default' => 'no',
@@ -348,13 +354,13 @@ class Setting extends ControllerAbstract {
 
 				array(
 					'section_title' => true,
-					'label' => __( 'Markdown Editor', 'wp-githuber-md' ),
+					'label' => __('Markdown Editor', 'wp-githuber-md'),
 				),
 
 				array(
 					'name'    => 'editor_live_preview',
-					'label'   => __( 'Live Preview', 'wp-githuber-md' ),
-					'desc'    => __( 'Split editor into two panes to display a live preview when editing post.', 'wp-githuber-md' ),
+					'label'   => __('Live Preview', 'wp-githuber-md'),
+					'desc'    => __('Split editor into two panes to display a live preview when editing post.', 'wp-githuber-md'),
 					'type'    => 'toggle',
 					'size'    => 'sm',
 					'default' => 'yes',
@@ -362,8 +368,8 @@ class Setting extends ControllerAbstract {
 
 				array(
 					'name'    => 'editor_sync_scrolling',
-					'label'   => __( 'Sync Scrolling', 'wp-githuber-md' ),
-					'desc'    => __( 'Synchronize scrolling of two editor panes by content.', 'wp-githuber-md' ),
+					'label'   => __('Sync Scrolling', 'wp-githuber-md'),
+					'desc'    => __('Synchronize scrolling of two editor panes by content.', 'wp-githuber-md'),
 					'type'    => 'toggle',
 					'size'    => 'sm',
 					'default' => 'yes',
@@ -371,8 +377,8 @@ class Setting extends ControllerAbstract {
 
 				array(
 					'name'    => 'editor_html_decode',
-					'label'   => __( 'HTML Decode', 'wp-githuber-md' ),
-					'desc'    => __( 'Allow all HTML tags and attributes in the Markdown Editor.', 'wp-githuber-md' ),
+					'label'   => __('HTML Decode', 'wp-githuber-md'),
+					'desc'    => __('Allow all HTML tags and attributes in the Markdown Editor.', 'wp-githuber-md'),
 					'type'    => 'toggle',
 					'size'    => 'sm',
 					'default' => 'yes',
@@ -380,8 +386,8 @@ class Setting extends ControllerAbstract {
 
 				array(
 					'name'    => 'editor_line_number',
-					'label'   => __( 'Line Number', 'wp-githuber-md' ),
-					'desc'    => __( 'Display line number in the Markdown Editor.', 'wp-githuber-md' ),
+					'label'   => __('Line Number', 'wp-githuber-md'),
+					'desc'    => __('Display line number in the Markdown Editor.', 'wp-githuber-md'),
 					'type'    => 'toggle',
 					'size'    => 'sm',
 					'default' => 'yes',
@@ -389,8 +395,8 @@ class Setting extends ControllerAbstract {
 
 				array(
 					'name'    => 'editor_toolbar_theme',
-					'label'   => __( 'Toolbar', 'wp-githuber-md' ),
-					'desc'    => __( 'Choose a preferred style for the Editor\'s toolbar.', 'wp-githuber-md' ),
+					'label'   => __('Toolbar', 'wp-githuber-md'),
+					'desc'    => __('Choose a preferred style for the Editor\'s toolbar.', 'wp-githuber-md'),
 					'type'    => 'select',
 					'default' => 'default',
 					'options' => array(
@@ -401,8 +407,8 @@ class Setting extends ControllerAbstract {
 
 				array(
 					'name'    => 'editor_editor_theme',
-					'label'   => __( 'Editing Area', 'wp-githuber-md' ),
-					'desc'    => __( 'Choose a preferred style for the Editor\'s editing area.', 'wp-githuber-md' ),
+					'label'   => __('Editing Area', 'wp-githuber-md'),
+					'desc'    => __('Choose a preferred style for the Editor\'s editing area.', 'wp-githuber-md'),
 					'type'    => 'select',
 					'default' => 'default',
 					'options' => array(
@@ -468,15 +474,15 @@ class Setting extends ControllerAbstract {
 			'githuber_modules' => array(
 
 				array(
-					'label'         => __( 'Syntax Highlight', 'wp-githuber-md' ),
+					'label'         => __('Syntax Highlight', 'wp-githuber-md'),
 					'section_title' => true,
 					'location_id'   => 'syntax-highlight',
-					'desc'          => __( 'prism.js', 'wp-githuber-md' ),
+					'desc'          => __('prism.js', 'wp-githuber-md'),
 				),
 
 				array(
 					'name'        => 'support_prism',
-					'desc'        => __( 'Highlight the syntax in your code snippets by Prism.js', 'wp-githuber-md' ) . '<br />' . __( 'This option is not available if you choose another highlighter modules.', 'wp-githuber-md' ),
+					'desc'        => __('Highlight the syntax in your code snippets by Prism.js', 'wp-githuber-md') . '<br />' . __('This option is not available if you choose another highlighter modules.', 'wp-githuber-md'),
 					'type'        => 'toggle',
 					'has_child'   => true,
 					'location_id' => 'syntax-highlight',
@@ -485,8 +491,8 @@ class Setting extends ControllerAbstract {
 
 				array(
 					'name'    => 'prism_theme',
-					'label'   => __( 'Theme', 'wp-githuber-md' ),
-					'desc'    => __( 'Choose a preferred theme for the syntax highlighter.', 'wp-githuber-md' ),
+					'label'   => __('Theme', 'wp-githuber-md'),
+					'desc'    => __('Choose a preferred theme for the syntax highlighter.', 'wp-githuber-md'),
 					'type'    => 'select',
 					'default' => 'default',
 					'parent'  => 'support_prism',
@@ -504,8 +510,8 @@ class Setting extends ControllerAbstract {
 
 				array(
 					'name'    => 'prism_line_number',
-					'label'   => __( 'Line Number', 'wp-githuber-md' ),
-					'desc'    => __( 'Show line number in code area?', 'wp-githuber-md' ),
+					'label'   => __('Line Number', 'wp-githuber-md'),
+					'desc'    => __('Show line number in code area?', 'wp-githuber-md'),
 					'type'    => 'toggle',
 					'size'    => 'sm',
 					'default' => 'no',
@@ -514,35 +520,35 @@ class Setting extends ControllerAbstract {
 
 				array(
 					'name'    => 'prism_src',
-					'label'   => __( 'File Host', 'wp-githuber-md' ),
-					'desc'    => __( 'Use this library with a CDN service or self-hosted (default)?', 'wp-githuber-md' ),
+					'label'   => __('File Host', 'wp-githuber-md'),
+					'desc'    => __('Use this library with a CDN service or self-hosted (default)?', 'wp-githuber-md'),
 					'type'    => 'radio',
 					'default' => 'default',
 					'parent'  => 'support_prism',
 					'options' => array(
-						'default'    => __( 'default', 'wp-githuber-md' ),
+						'default'    => __('default', 'wp-githuber-md'),
 						'cloudflare' => 'cdnjs.cloudflare.com',
 						'jsdelivr'   => 'cdn.jsdelivr.net',
 					),
 				),
 
 				array(
-					'label'   => __( 'Example', 'wp-githuber-md' ),
-					'desc'    => githuber_load_view( 'example/prism' ),
+					'label'   => __('Example', 'wp-githuber-md'),
+					'desc'    => githuber_load_view('example/prism'),
 					'type'    => 'html',
 					'parent'  => 'support_prism',
 				),
 
 				array(
-					'label'         => __( 'Syntax Highlight', 'wp-githuber-md' ),
+					'label'         => __('Syntax Highlight', 'wp-githuber-md'),
 					'section_title' => true,
 					'location_id'   => 'syntax-highlight-js',
-					'desc'          => __( 'highlight.js', 'wp-githuber-md' ),
+					'desc'          => __('highlight.js', 'wp-githuber-md'),
 				),
 
 				array(
 					'name'        => 'support_highlight',
-					'desc'        => __( 'Highlight the syntax in your code snippets by Highlight.js', 'wp-githuber-md' ) . '<br />' . __( 'This option is not available if you choose another highlighter modules.', 'wp-githuber-md' ),
+					'desc'        => __('Highlight the syntax in your code snippets by Highlight.js', 'wp-githuber-md') . '<br />' . __('This option is not available if you choose another highlighter modules.', 'wp-githuber-md'),
 					'type'        => 'toggle',
 					'has_child'   => true,
 					'location_id' => 'syntax-highlight-js',
@@ -551,8 +557,8 @@ class Setting extends ControllerAbstract {
 
 				array(
 					'name'    => 'highlight_theme',
-					'label'   => __( 'Theme', 'wp-githuber-md' ),
-					'desc'    => __( 'Choose a preferred theme for the syntax highlighter.', 'wp-githuber-md' ) . ' [<a href="https://highlightjs.org/static/demo/" target="_blank">' . __( 'Demo' ) . '</a>]',
+					'label'   => __('Theme', 'wp-githuber-md'),
+					'desc'    => __('Choose a preferred theme for the syntax highlighter.', 'wp-githuber-md') . ' [<a href="https://highlightjs.org/static/demo/" target="_blank">' . __('Demo') . '</a>]',
 					'type'    => 'select',
 					'default' => 'default',
 					'parent'  => 'support_highlight',
@@ -651,20 +657,20 @@ class Setting extends ControllerAbstract {
 
 				array(
 					'name'    => 'highlight_src',
-					'label'   => __( 'File Host', 'wp-githuber-md' ),
-					'desc'    => __( 'Use this library with a CDN service or self-hosted (default)?', 'wp-githuber-md' ),
+					'label'   => __('File Host', 'wp-githuber-md'),
+					'desc'    => __('Use this library with a CDN service or self-hosted (default)?', 'wp-githuber-md'),
 					'type'    => 'radio',
 					'default' => 'default',
 					'parent'  => 'support_highlight',
 					'options' => array(
-						'default'    => __( 'default', 'wp-githuber-md' ),
+						'default'    => __('default', 'wp-githuber-md'),
 						'cloudflare' => 'cdnjs.cloudflare.com',
 					),
 				),
 
 				array(
-					'label'  => __( 'Example', 'wp-githuber-md' ),
-					'desc'   => githuber_load_view( 'example/highlight-js' ),
+					'label'  => __('Example', 'wp-githuber-md'),
+					'desc'   => githuber_load_view('example/highlight-js'),
 					'type'   => 'html',
 					'parent' => 'support_highlight',
 				),
@@ -674,13 +680,13 @@ class Setting extends ControllerAbstract {
 				array(
 					'section_title' => true,
 					'location_id'   => 'clipboard',
-					'label'         => __( 'Copy to Clipboard', 'wp-githuber-md' ),
-					'desc'          => __( 'clipboard.js', 'wp-githuber-md' ),
+					'label'         => __('Copy to Clipboard', 'wp-githuber-md'),
+					'desc'          => __('clipboard.js', 'wp-githuber-md'),
 				),
 
 				array(
 					'name'        => 'support_clipboard',
-					'desc'        => __( 'Display a `Copy` button on the highlighting code block. Copy the text into clipboard by clicking the button.', 'wp-githuber-md' ),
+					'desc'        => __('Display a `Copy` button on the highlighting code block. Copy the text into clipboard by clicking the button.', 'wp-githuber-md'),
 					'type'        => 'toggle',
 					'has_child'   => true,
 					'default'     => 'no',
@@ -689,13 +695,13 @@ class Setting extends ControllerAbstract {
 
 				array(
 					'name'    => 'clipboard_src',
-					'label'   => __( 'File Host', 'wp-githuber-md' ),
-					'desc'    => __( 'Use this library with a CDN service or self-hosted (default)?', 'wp-githuber-md' ),
+					'label'   => __('File Host', 'wp-githuber-md'),
+					'desc'    => __('Use this library with a CDN service or self-hosted (default)?', 'wp-githuber-md'),
 					'type'    => 'radio',
 					'default' => 'default',
 					'parent'  => 'support_clipboard',
 					'options' => array(
-						'default'    => __( 'default', 'wp-githuber-md' ),
+						'default'    => __('default', 'wp-githuber-md'),
 						'cloudflare' => 'cdnjs.cloudflare.com',
 						'jsdelivr'   => 'cdn.jsdelivr.net',
 					),
@@ -704,12 +710,12 @@ class Setting extends ControllerAbstract {
 				array(
 					'section_title' => true,
 					'location_id'   => 'image-paste',
-					'label'         => __( 'Image Paste', 'wp-githuber-md' ),
+					'label'         => __('Image Paste', 'wp-githuber-md'),
 				),
 
 				array(
 					'name'        => 'support_image_paste',
-					'desc'        => githuber_load_view( 'setting/image-paste' ),
+					'desc'        => githuber_load_view('setting/image-paste'),
 					'type'        => 'toggle',
 					'has_child'   => true,
 					'location_id' => 'image-paste',
@@ -718,23 +724,23 @@ class Setting extends ControllerAbstract {
 
 				array(
 					'name'    => 'image_paste_src',
-					'label'   => __( 'Storage Space', 'wp-githuber-md' ),
-					'desc'    => __( 'Images are stored in WordPress\'s <strong>uploads</strong> folder by default. However, you can use Imgur instead of the default place.', 'wp-githuber-md' ),
+					'label'   => __('Storage Space', 'wp-githuber-md'),
+					'desc'    => __('Images are stored in WordPress\'s <strong>uploads</strong> folder by default. However, you can use Imgur instead of the default place.', 'wp-githuber-md'),
 					'type'    => 'radio',
 					'default' => 'default',
 					'parent'  => 'support_image_paste',
 					'options' => array(
-						'default' => __( 'default', 'wp-githuber-md' ),
-						'imgur'   => __( 'imgur.com', 'wp-githuber-md' ),
-						'smms'    => __( 'sm.ms', 'wp-githuber-md' ),
-						'chevereto'=> __( 'chevereto', 'wp-githuber-md' ),
+						'default' => __('default', 'wp-githuber-md'),
+						'imgur'   => __('imgur.com', 'wp-githuber-md'),
+						'smms'    => __('sm.ms', 'wp-githuber-md'),
+						'chevereto' => __('chevereto', 'wp-githuber-md'),
 					),
 				),
 
 				array(
 					'name'              => 'imgur_client_id',
-					'label'             => __( 'Imgur Client ID', 'wp-githuber-md' ),
-					'desc'              => githuber_load_view( 'setting/image-paste-imgur' ),
+					'label'             => __('Imgur Client ID', 'wp-githuber-md'),
+					'desc'              => githuber_load_view('setting/image-paste-imgur'),
 					'placeholder'       => '',
 					'type'              => 'text',
 					'default'           => '',
@@ -744,8 +750,8 @@ class Setting extends ControllerAbstract {
 
 				array(
 					'name'              => 'smms_api_key',
-					'label'             => __( 'sm.ms API Key', 'wp-githuber-md' ),
-					'desc'              => githuber_load_view( 'setting/image-paste-smms' ),
+					'label'             => __('sm.ms API Key', 'wp-githuber-md'),
+					'desc'              => githuber_load_view('setting/image-paste-smms'),
 					'placeholder'       => '',
 					'type'              => 'text',
 					'default'           => '',
@@ -755,8 +761,8 @@ class Setting extends ControllerAbstract {
 
 				array(
 					'name'              => 'chevereto_api_url',
-					'label'             => __( 'chevereto api url', 'wp-githuber-md' ),
-					'desc'              => githuber_load_view( 'setting/image-paste-chevereto-url' ),
+					'label'             => __('chevereto api url', 'wp-githuber-md'),
+					'desc'              => githuber_load_view('setting/image-paste-chevereto-url'),
 					'placeholder'       => '',
 					'type'              => 'text',
 					'default'           => '',
@@ -766,8 +772,8 @@ class Setting extends ControllerAbstract {
 
 				array(
 					'name'              => 'chevereto_api_key',
-					'label'             => __( 'chevereto api key', 'wp-githuber-md' ),
-					'desc'              => githuber_load_view( 'setting/image-paste-chevereto-key' ),
+					'label'             => __('chevereto api key', 'wp-githuber-md'),
+					'desc'              => githuber_load_view('setting/image-paste-chevereto-key'),
 					'placeholder'       => '',
 					'type'              => 'text',
 					'default'           => '',
@@ -777,23 +783,80 @@ class Setting extends ControllerAbstract {
 
 				array(
 					'name'    => 'is_image_paste_media_library',
-					'label'   => __( 'Upload to Media Library?', 'wp-githuber-md' ),
-					'desc'    => githuber_load_view( 'setting/image-paste-media-library' ),
+					'label'   => __('Upload to Media Library?', 'wp-githuber-md'),
+					'desc'    => githuber_load_view('setting/image-paste-media-library'),
 					'type'    => 'toggle',
 					'size'    => 'sm',
 					'default' => 'yes',
 					'parent'  => 'support_image_paste',
 				),
+				// movie-upload
+				array(
+					'section_title' => true,
+					'location_id'   => 'movie-upload',
+					'label'         => __('Movie Upload', 'wp-githuber-md'),
+				),
+				array(
+					'name'        => 'support_movie_upload',
+					'desc'        => githuber_load_view('setting/movie-upload'),
+					'type'        => 'toggle',
+					'has_child'   => true,
+					'location_id' => 'movie-upload',
+					'default'     => 'no',
+				),
+				array(
+					'name'              => 's3_api_region',
+					'label'             => __('S3 api region', 'wp-githuber-md'),
+					'desc'              => githuber_load_view('setting/movie-upload-s3-region'),
+					'placeholder'       => '',
+					'type'              => 'text',
+					'default'           => '',
+					'parent'            => 'support_movie_upload',
+					'sanitize_callback' => 'sanitize_text_field',
+				),
+				array(
+					'name'              => 's3_api_bucket',
+					'label'             => __('S3 api bucket', 'wp-githuber-md'),
+					'desc'              => githuber_load_view('setting/movie-upload-s3-bucket'),
+					'placeholder'       => '',
+					'type'              => 'text',
+					'default'           => '',
+					'parent'            => 'support_movie_upload',
+					'sanitize_callback' => 'sanitize_text_field',
+				),
+
+				array(
+					'name'              => 's3_api_key',
+					'label'             => __('S3 api key', 'wp-githuber-md'),
+					'desc'              => githuber_load_view('setting/movie-upload-s3-key'),
+					'placeholder'       => '',
+					'type'              => 'text',
+					'default'           => '',
+					'parent'            => 'support_movie_upload',
+					'sanitize_callback' => 'sanitize_text_field',
+				),
+
+				array(
+					'name'              => 's3_api_secret',
+					'label'             => __('S3 api secret', 'wp-githuber-md'),
+					'desc'              => githuber_load_view('setting/movie-upload-s3-secret'),
+					'placeholder'       => '',
+					'type'              => 'text',
+					'default'           => '',
+					'parent'            => 'support_movie_upload',
+					'sanitize_callback' => 'sanitize_text_field',
+				),
+				// movie-upload
 
 				array(
 					'section_title' => true,
 					'location_id'   => 'table-of-content',
-					'label'         => __( 'Table of Contents', 'wp-githuber-md' ),
+					'label'         => __('Table of Contents', 'wp-githuber-md'),
 				),
 
 				array(
 					'name'        => 'support_toc',
-					'desc'        => __( 'Support Table of Contents.', 'wp-githuber-md' ),
+					'desc'        => __('Support Table of Contents.', 'wp-githuber-md'),
 					'type'        => 'toggle',
 					'has_child'   => true,
 					'location_id' => 'table-of-content',
@@ -802,8 +865,8 @@ class Setting extends ControllerAbstract {
 
 				array(
 					'name'    => 'is_toc_widget',
-					'label'   => __( 'Widget', 'wp-githuber-md' ),
-					'desc'    => __( 'Display a TOC in the widget area for single post.', 'wp-githuber-md' ),
+					'label'   => __('Widget', 'wp-githuber-md'),
+					'desc'    => __('Display a TOC in the widget area for single post.', 'wp-githuber-md'),
 					'type'    => 'toggle',
 					'size'    => 'sm',
 					'default' => 'yes',
@@ -812,8 +875,8 @@ class Setting extends ControllerAbstract {
 
 				array(
 					'name'    => 'display_toc_in_post',
-					'label'   => __( 'Inside a Post', 'wp-githuber-md' ),
-					'desc'    => __( 'Insert a TOC inside a post header location.', 'wp-githuber-md' ),
+					'label'   => __('Inside a Post', 'wp-githuber-md'),
+					'desc'    => __('Insert a TOC inside a post header location.', 'wp-githuber-md'),
 					'type'    => 'toggle',
 					'size'    => 'sm',
 					'default' => 'yes',
@@ -822,22 +885,22 @@ class Setting extends ControllerAbstract {
 
 				array(
 					'name'    => 'post_toc_float',
-					'label'   => __( 'Float', 'wp-githuber-md' ),
-					'desc'    => __( 'Would you like to float the TOC in the post to left or right?', 'wp-githuber-md' ),
+					'label'   => __('Float', 'wp-githuber-md'),
+					'desc'    => __('Would you like to float the TOC in the post to left or right?', 'wp-githuber-md'),
 					'type'    => 'radio',
 					'default' => 'default',
 					'parent'  => 'support_toc',
 					'options' => array(
-						'default' => __( 'default', 'wp-githuber-md' ),
-						'right'   => __( 'right', 'wp-githuber-md' ),
-						'left'    => __( 'left', 'wp-githuber-md' ),
+						'default' => __('default', 'wp-githuber-md'),
+						'right'   => __('right', 'wp-githuber-md'),
+						'left'    => __('left', 'wp-githuber-md'),
 					),
 				),
 
 				array(
 					'name'    => 'post_toc_border',
-					'label'   => __( 'Border', 'wp-githuber-md' ),
-					'desc'    => __( 'Would you like to show the border of the TOC in the post?', 'wp-githuber-md' ),
+					'label'   => __('Border', 'wp-githuber-md'),
+					'desc'    => __('Would you like to show the border of the TOC in the post?', 'wp-githuber-md'),
 					'type'    => 'toggle',
 					'size'    => 'sm',
 					'default' => 'yes',
@@ -847,13 +910,13 @@ class Setting extends ControllerAbstract {
 				array(
 					'section_title' => true,
 					'location_id'   => 'katex',
-					'label'         => __( 'KaTex', 'wp-githuber-md' ),
-					'desc'          => __( 'KaTex.js', 'wp-githuber-md' ),
+					'label'         => __('KaTex', 'wp-githuber-md'),
+					'desc'          => __('KaTex.js', 'wp-githuber-md'),
 				),
 
 				array(
 					'name'        => 'support_katex',
-					'desc'        => __( 'Support <a href="https://terryl.in/en/githuber-md-katax/" target="_blank">KaTeX</a> math typesetting.', 'wp-githuber-md' ),
+					'desc'        => __('Support <a href="https://terryl.in/en/githuber-md-katax/" target="_blank">KaTeX</a> math typesetting.', 'wp-githuber-md'),
 					'type'        => 'toggle',
 					'has_child'   => true,
 					'default'     => 'no',
@@ -862,22 +925,22 @@ class Setting extends ControllerAbstract {
 
 				array(
 					'name'    => 'katex_src',
-					'label'   => __( 'File Host', 'wp-githuber-md' ),
-					'desc'    => __( 'Use this library with a CDN service or self-hosted (default)?', 'wp-githuber-md' ),
+					'label'   => __('File Host', 'wp-githuber-md'),
+					'desc'    => __('Use this library with a CDN service or self-hosted (default)?', 'wp-githuber-md'),
 					'type'    => 'radio',
 					'default' => 'default',
 					'parent'  => 'support_katex',
 					'options' => array(
-						'default'    => __( 'default', 'wp-githuber-md' ),
+						'default'    => __('default', 'wp-githuber-md'),
 						'cloudflare' => 'cdnjs.cloudflare.com',
 						'jsdelivr'   => 'cdn.jsdelivr.net',
-						'custom'     => __( 'custom', 'wp-githuber-md' ),
+						'custom'     => __('custom', 'wp-githuber-md'),
 					),
 				),
 
 				array(
-					'label'  => __( 'Example', 'wp-githuber-md' ),
-					'desc'   => githuber_load_view( 'example/katex' ),
+					'label'  => __('Example', 'wp-githuber-md'),
+					'desc'   => githuber_load_view('example/katex'),
 					'type'   => 'html',
 					'parent' => 'support_katex',
 				),
@@ -885,13 +948,13 @@ class Setting extends ControllerAbstract {
 				array(
 					'section_title' => true,
 					'location_id'   => 'mermaid',
-					'label'         => __( 'Mermaid', 'wp-githuber-md' ),
-					'desc'          => __( 'mermaid.js', 'wp-githuber-md' ),
+					'label'         => __('Mermaid', 'wp-githuber-md'),
+					'desc'          => __('mermaid.js', 'wp-githuber-md'),
 				),
 
 				array(
 					'name'        => 'support_mermaid',
-					'desc'        => __( 'Support <a href="https://terryl.in/en/githuber-md-mermaid/" target="_blank">Mermaid.js</a>, a Markdownish Syntax for Generating Charts.', 'wp-githuber-md' ),
+					'desc'        => __('Support <a href="https://terryl.in/en/githuber-md-mermaid/" target="_blank">Mermaid.js</a>, a Markdownish Syntax for Generating Charts.', 'wp-githuber-md'),
 					'type'        => 'toggle',
 					'location_id' => 'mermaid',
 					'has_child'   => true,
@@ -900,21 +963,21 @@ class Setting extends ControllerAbstract {
 
 				array(
 					'name'    => 'mermaid_src',
-					'label'   => __( 'File Host', 'wp-githuber-md' ),
-					'desc'    => __( 'Use this library with a CDN service or self-hosted (default)?', 'wp-githuber-md' ),
+					'label'   => __('File Host', 'wp-githuber-md'),
+					'desc'    => __('Use this library with a CDN service or self-hosted (default)?', 'wp-githuber-md'),
 					'type'    => 'radio',
 					'default' => 'default',
 					'parent'  => 'support_mermaid',
 					'options' => array(
-						'default'    => __( 'default', 'wp-githuber-md' ),
+						'default'    => __('default', 'wp-githuber-md'),
 						'cloudflare' => 'cdnjs.cloudflare.com',
 						'jsdelivr'   => 'cdn.jsdelivr.net',
 					),
 				),
 
 				array(
-					'label'   => __( 'Example', 'wp-githuber-md' ),
-					'desc'    => githuber_load_view( 'example/mermaid' ),
+					'label'   => __('Example', 'wp-githuber-md'),
+					'desc'    => githuber_load_view('example/mermaid'),
 					'type'    => 'html',
 					'parent'  => 'support_mermaid',
 				),
@@ -922,13 +985,13 @@ class Setting extends ControllerAbstract {
 				array(
 					'section_title' => true,
 					'location_id'   => 'flowchart',
-					'label'         => __( 'Flow Chart', 'wp-githuber-md' ),
-					'desc'          => __( 'flowchart.js', 'wp-githuber-md' ),
+					'label'         => __('Flow Chart', 'wp-githuber-md'),
+					'desc'          => __('flowchart.js', 'wp-githuber-md'),
 				),
 
 				array(
 					'name'        => 'support_flowchart',
-					'desc'        => __( 'Support <a href="https://terryl.in/en/githuber-md-flow-chart/" target="_blank">flowchart.js</a> to draws simple SVG flow chart diagrams.', 'wp-githuber-md' ),
+					'desc'        => __('Support <a href="https://terryl.in/en/githuber-md-flow-chart/" target="_blank">flowchart.js</a> to drs3 simple SVG flow chart diagrams.', 'wp-githuber-md'),
 					'type'        => 'toggle',
 					'has_child'   => true,
 					'location_id' => 'flowchart',
@@ -937,21 +1000,21 @@ class Setting extends ControllerAbstract {
 
 				array(
 					'name'    => 'flowchart_src',
-					'label'   => __( 'File Host', 'wp-githuber-md' ),
-					'desc'    => __( 'Use this library with a CDN service or self-hosted (default)?', 'wp-githuber-md' ),
+					'label'   => __('File Host', 'wp-githuber-md'),
+					'desc'    => __('Use this library with a CDN service or self-hosted (default)?', 'wp-githuber-md'),
 					'type'    => 'radio',
 					'default' => 'default',
 					'parent'  => 'support_flowchart',
 					'options' => array(
-						'default'    => __( 'default', 'wp-githuber-md' ),
+						'default'    => __('default', 'wp-githuber-md'),
 						'cloudflare' => 'cdnjs.cloudflare.com',
 						'jsdelivr'   => 'cdn.jsdelivr.net',
 					),
 				),
 
 				array(
-					'label'  => __( 'Example', 'wp-githuber-md' ),
-					'desc'   => githuber_load_view( 'example/flowchart' ),
+					'label'  => __('Example', 'wp-githuber-md'),
+					'desc'   => githuber_load_view('example/flowchart'),
 					'type'   => 'html',
 					'parent' => 'support_flowchart',
 				),
@@ -959,13 +1022,13 @@ class Setting extends ControllerAbstract {
 				array(
 					'section_title' => true,
 					'location_id'   => 'sequence-diagram',
-					'label'         => __( 'Sequence Diagrams', 'wp-githuber-md' ),
-					'desc'          => __( 'sequence-diagrams.js', 'wp-githuber-md' ),
+					'label'         => __('Sequence Diagrams', 'wp-githuber-md'),
+					'desc'          => __('sequence-diagrams.js', 'wp-githuber-md'),
 				),
 
 				array(
 					'name'        => 'support_sequence_diagram',
-					'desc'        => __( 'Support <a href="https://terryl.in/en/githuber-md-sequence-diagrams/" target="_blank">js-sequence-diagrams</a> to turn text into vector UML sequence diagrams.', 'wp-githuber-md' ),
+					'desc'        => __('Support <a href="https://terryl.in/en/githuber-md-sequence-diagrams/" target="_blank">js-sequence-diagrams</a> to turn text into vector UML sequence diagrams.', 'wp-githuber-md'),
 					'type'        => 'toggle',
 					'has_child'   => true,
 					'location_id' => 'sequence-diagram',
@@ -974,21 +1037,21 @@ class Setting extends ControllerAbstract {
 
 				array(
 					'name'    => 'sequence_diagram_src',
-					'label'   => __( 'File Host', 'wp-githuber-md' ),
-					'desc'    => __( 'Use this library with a CDN service or self-hosted (default)?', 'wp-githuber-md' ),
+					'label'   => __('File Host', 'wp-githuber-md'),
+					'desc'    => __('Use this library with a CDN service or self-hosted (default)?', 'wp-githuber-md'),
 					'type'    => 'radio',
 					'default' => 'default',
 					'parent'  => 'support_sequence_diagram',
 					'options' => array(
-						'default'    => __( 'default', 'wp-githuber-md' ),
+						'default'    => __('default', 'wp-githuber-md'),
 						'cloudflare' => 'cdnjs.cloudflare.com',
 						'jsdelivr'   => 'cdn.jsdelivr.net',
 					),
 				),
 
 				array(
-					'label'  => __( 'Example', 'wp-githuber-md' ),
-					'desc'   => githuber_load_view( 'example/sequence' ),
+					'label'  => __('Example', 'wp-githuber-md'),
+					'desc'   => githuber_load_view('example/sequence'),
 					'type'   => 'html',
 					'parent' => 'support_sequence_diagram',
 				),
@@ -996,13 +1059,13 @@ class Setting extends ControllerAbstract {
 				array(
 					'section_title' => true,
 					'location_id'   => 'mathjax',
-					'label'         => __( 'MathJax', 'wp-githuber-md' ),
-					'desc'          => __( 'MathJax.js', 'wp-githuber-md' ),
+					'label'         => __('MathJax', 'wp-githuber-md'),
+					'desc'          => __('MathJax.js', 'wp-githuber-md'),
 				),
 
 				array(
 					'name'        => 'support_mathjax',
-					'desc'        => __( 'MathJax displays mathematical notation in web browsers, using LaTeX markup. ', 'wp-githuber-md' ),
+					'desc'        => __('MathJax displays mathematical notation in web browsers, using LaTeX markup. ', 'wp-githuber-md'),
 					'type'        => 'toggle',
 					'has_child'   => true,
 					'location_id' => 'mathjax',
@@ -1011,21 +1074,21 @@ class Setting extends ControllerAbstract {
 
 				array(
 					'name'    => 'mathjax_src',
-					'label'   => __( 'File Host', 'wp-githuber-md' ),
-					'desc'    => __( 'Use this library with a CDN service or self-hosted (default)?', 'wp-githuber-md' ),
+					'label'   => __('File Host', 'wp-githuber-md'),
+					'desc'    => __('Use this library with a CDN service or self-hosted (default)?', 'wp-githuber-md'),
 					'type'    => 'radio',
 					'default' => 'cloudflare',
 					'parent'  => 'support_mathjax',
 					'options' => array(
-						'default'    => __( 'default', 'wp-githuber-md' ),
+						'default'    => __('default', 'wp-githuber-md'),
 						'cloudflare' => 'cdnjs.cloudflare.com',
 						'jsdelivr'   => 'cdn.jsdelivr.net',
 					),
 				),
 
 				array(
-					'label'   => __( 'Example', 'wp-githuber-md' ),
-					'desc'    => githuber_load_view( 'example/mathjax' ),
+					'label'   => __('Example', 'wp-githuber-md'),
+					'desc'    => githuber_load_view('example/mathjax'),
 					'type'    => 'html',
 					'parent'  => 'support_mathjax',
 				),
@@ -1033,13 +1096,13 @@ class Setting extends ControllerAbstract {
 				array(
 					'section_title' => true,
 					'location_id'   => 'support-emojify',
-					'label'         => __( 'Emojify', 'wp-githuber-md' ),
-					'desc'          => __( 'emojify.js', 'wp-githuber-md' ),
+					'label'         => __('Emojify', 'wp-githuber-md'),
+					'desc'          => __('emojify.js', 'wp-githuber-md'),
 				),
 
 				array(
 					'name'        => 'support_emojify',
-					'desc'        => __( 'Display emojis on Markdown editor preview pane and frontend posts.', 'wp-githuber-md' ),
+					'desc'        => __('Display emojis on Markdown editor preview pane and frontend posts.', 'wp-githuber-md'),
 					'type'        => 'toggle',
 					'has_child'   => true,
 					'location_id' => 'support-emoji',
@@ -1048,13 +1111,13 @@ class Setting extends ControllerAbstract {
 
 				array(
 					'name'    => 'emojify_src',
-					'label'   => __( 'File Host', 'wp-githuber-md' ),
-					'desc'    => __( 'Use this library with a CDN service or self-hosted (default)?', 'wp-githuber-md' ),
+					'label'   => __('File Host', 'wp-githuber-md'),
+					'desc'    => __('Use this library with a CDN service or self-hosted (default)?', 'wp-githuber-md'),
 					'type'    => 'radio',
 					'default' => 'default',
 					'parent'  => 'support_emojify',
 					'options' => array(
-						'default'    => __( 'default', 'wp-githuber-md' ),
+						'default'    => __('default', 'wp-githuber-md'),
 						'cloudflare' => 'cdnjs.cloudflare.com',
 						'jsdelivr'   => 'cdn.jsdelivr.net',
 					),
@@ -1062,8 +1125,8 @@ class Setting extends ControllerAbstract {
 
 				array(
 					'name'    => 'emojify_emoji_size',
-					'label'   => __( 'Image Size', 'wp-githuber-md' ),
-					'desc'    => __( 'What size would you want the emojis to be in your posts.', 'wp-githuber-md' ),
+					'label'   => __('Image Size', 'wp-githuber-md'),
+					'desc'    => __('What size would you want the emojis to be in your posts.', 'wp-githuber-md'),
 					'type'    => 'radio',
 					'default' => '1.5em',
 					'parent'  => 'support_emojify',
@@ -1072,7 +1135,7 @@ class Setting extends ControllerAbstract {
 						'1.125em' => '1.125 (em)',
 						'1.25em'  => '1.250 (em)',
 						'1.375em' => '1.375 (em)',
-						'1.5em'   => '1.500 (em)' . ' - ' . __( 'default', 'wp-githuber-md' ),
+						'1.5em'   => '1.500 (em)' . ' - ' . __('default', 'wp-githuber-md'),
 						'1.625em' => '1.625 (em)',
 						'1.75em'  => '1.750 (em)',
 					),
@@ -1083,35 +1146,35 @@ class Setting extends ControllerAbstract {
 
 				array(
 					'name'    => 'support_mardown_extra',
-					'label'   => __( 'Markdown Extra', 'wp-githuber-md' ),
-					'desc'    => githuber_load_view( 'setting/markdown-extra' ),
+					'label'   => __('Markdown Extra', 'wp-githuber-md'),
+					'desc'    => githuber_load_view('setting/markdown-extra'),
 					'type'    => 'toggle',
 					'size'    => 'sm',
 					'default' => 'no',
 				),
 				array(
 					'name'    => 'support_task_list',
-					'label'   => __( 'GFM Task List', 'wp-githuber-md' ),
-					'desc'    => __( 'Support Github Flavored Markdown task lists.', 'wp-githuber-md' ),
+					'label'   => __('GFM Task List', 'wp-githuber-md'),
+					'desc'    => __('Support Github Flavored Markdown task lists.', 'wp-githuber-md'),
 					'type'    => 'toggle',
 					'size'    => 'sm',
 					'default' => 'no',
 				),
 
 				array(
-					'desc' => githuber_load_view( 'example/gfm-task-list' ),
+					'desc' => githuber_load_view('example/gfm-task-list'),
 					'type' => 'html',
 				),
 
 				array(
-					'label'         => __( 'Githuber MD Extensions', 'wp-githuber-md' ),
+					'label'         => __('Githuber MD Extensions', 'wp-githuber-md'),
 					'section_title' => true,
 				),
 
 				array(
 					'name'    => 'support_html_figure',
-					'label'   => __( 'HTML5 Figure', 'wp-githuber-md' ),
-					'desc'    => githuber_load_view( 'example/html5-figure' ),
+					'label'   => __('HTML5 Figure', 'wp-githuber-md'),
+					'desc'    => githuber_load_view('example/html5-figure'),
 					'type'    => 'toggle',
 					'size'    => 'sm',
 					'default' => 'no',
@@ -1119,8 +1182,8 @@ class Setting extends ControllerAbstract {
 
 				array(
 					'name'    => 'support_inline_code_keyboard_style',
-					'label'   => __( 'Inline Code Block with Keyboard Style', 'wp-githuber-md' ),
-					'desc'    => githuber_load_view( 'example/inline-code-keyboard-style' ),
+					'label'   => __('Inline Code Block with Keyboard Style', 'wp-githuber-md'),
+					'desc'    => githuber_load_view('example/inline-code-keyboard-style'),
 					'type'    => 'toggle',
 					'size'    => 'sm',
 					'default' => 'no',
@@ -1130,68 +1193,68 @@ class Setting extends ControllerAbstract {
 			'githuber_preferences' => array(
 				array(
 					'name'    => 'post_link_target_attribute',
-					'label'   => __( 'Link Opening Method', 'wp-githuber-md' ),
-					'desc'    => __( 'For links in posts, please specify where to open the linked document.', 'wp-githuber-md' ),
+					'label'   => __('Link Opening Method', 'wp-githuber-md'),
+					'desc'    => __('For links in posts, please specify where to open the linked document.', 'wp-githuber-md'),
 					'type'    => 'radio',
 					'default' => '_self',
 					'options' => array(
-						'_self'  => __( 'Same window. (default)', 'wp-githuber-md' ),
-						'_blank' => __( 'New window.', 'wp-githuber-md' ),
+						'_self'  => __('Same window. (default)', 'wp-githuber-md'),
+						'_blank' => __('New window.', 'wp-githuber-md'),
 					),
 				),
 
 				array(
 					'name'    => 'allow_shortcode',
-					'label'   => __( 'Shortcode', 'wp-githuber-md' ),
-					'desc'    => __( 'Allow using shortcode in Markdown text.', 'wp-githuber-md' ) . '<br />' . __( 'Please understand that shortcode is processed to HTML by PHP, not JavaScript, therefore live-preview panel does not support it.', 'wp-githuber-md' ),
+					'label'   => __('Shortcode', 'wp-githuber-md'),
+					'desc'    => __('Allow using shortcode in Markdown text.', 'wp-githuber-md') . '<br />' . __('Please understand that shortcode is processed to HTML by PHP, not JavaScript, therefore live-preview panel does not support it.', 'wp-githuber-md'),
 					'type'    => 'toggle',
 					'default' => 'yes',
 				),
 
 				array(
 					'name'    => 'smart_quotes',
-					'label'   => __( 'Smart Quotes', 'wp-githuber-md' ),
-					'desc'    => githuber_load_view( 'setting/smart-quotes' ),
+					'label'   => __('Smart Quotes', 'wp-githuber-md'),
+					'desc'    => githuber_load_view('setting/smart-quotes'),
 					'type'    => 'toggle',
 					'default' => 'yes',
 				),
 
 				array(
 					'name'    => 'restore_ampersands',
-					'label'   => __( 'Ampersands in URL', 'wp-githuber-md' ),
-					'desc'    => __( 'Replace `&amp;amp;` to `&` in URLs.', 'wp-githuber-md' ),
+					'label'   => __('Ampersands in URL', 'wp-githuber-md'),
+					'desc'    => __('Replace `&amp;amp;` to `&` in URLs.', 'wp-githuber-md'),
 					'type'    => 'toggle',
 					'default' => 'no',
 				),
 
 				array(
 					'name'    => 'support_wpseo_analysis',
-					'label'   => __( 'Yoast SEO Analysis', 'wp-githuber-md' ),
-					'desc'    => __( 'Support Yoast SEO readability analysis.', 'wp-githuber-md' ),
+					'label'   => __('Yoast SEO Analysis', 'wp-githuber-md'),
+					'desc'    => __('Support Yoast SEO readability analysis.', 'wp-githuber-md'),
 					'type'    => 'toggle',
 					'default' => 'no',
 				),
 
 				array(
 					'name'    => 'clear_all_settings',
-					'label'   => __( 'Clear all Settings', 'wp-githuber-md' ),
-					'desc'    => __( 'Clear all settings when uninstalling WP GitHuber MD.', 'wp-githuber-md' ),
+					'label'   => __('Clear all Settings', 'wp-githuber-md'),
+					'desc'    => __('Clear all settings when uninstalling WP GitHuber MD.', 'wp-githuber-md'),
 					'type'    => 'toggle',
 					'default' => 'no',
 				),
 
 				array(
 					'name'    => 'decode_code_blocks',
-					'label'   => __( 'Decode Code Blocks', 'wp-githuber-md' ),
-					'desc'    => sprintf( __( 'If you have met issues similar to issue #30, <a href="%s" target="_blank">#89</a>, try enabling this.', 'wp-githuber-md' ), 'https://github.com/terrylinooo/githuber-md/issues/89' ),
+					'label'   => __('Decode Code Blocks', 'wp-githuber-md'),
+					'desc'    => sprintf(__('If you have met issues similar to issue #30, <a href="%s" target="_blank">#89</a>, try enabling this.', 'wp-githuber-md'), 'https://github.com/terrylinooo/githuber-md/issues/89'),
 					'type'    => 'toggle',
 					'default' => 'no',
 				),
 
 				array(
 					'name'    => 'richeditor_by_default',
-					'label'   => __( 'Default: Rich Editor', 'wp-githuber-md' ),
-					'desc'    => __( 'Notice: Your users might be confused because if they switch to the Markdown editor and then switch back to the Rich editor or Gutenberg, the Markdown text for that single post will be lost. This is because the Rich editor and Markdown editor use different fields to store data.', 'wp-githuber-md' ),
+					'label'   => __('Default: Rich Editor', 'wp-githuber-md'),
+					'desc'    => __('Notice: Your users might be confused because if they switch to the Markdown editor and then switch back to the Rich editor or Gutenberg, the Markdown text for that single post will be lost. This is because the Rich editor and Markdown editor use different fields to store data.', 'wp-githuber-md'),
 					'type'    => 'toggle',
 					'default' => 'no',
 				),
@@ -1201,29 +1264,29 @@ class Setting extends ControllerAbstract {
 
 				array(
 					'name'  => 'plugin_about_author',
-					'label' => __( 'Author', 'wp-githuber-md' ),
+					'label' => __('Author', 'wp-githuber-md'),
 					'desc'  => 'Terry L. @ Taiwan.',
 					'type'  => 'html',
 				),
 
 				array(
 					'name'  => 'plugin_about_version',
-					'label' => __( 'Version', 'wp-githuber-md' ),
+					'label' => __('Version', 'wp-githuber-md'),
 					'desc'  => GITHUBER_PLUGIN_VERSION,
 					'type'  => 'html',
 				),
 
 				array(
 					'name'  => 'plugin_about_github',
-					'label' => __( 'GitHub Repository', 'wp-githuber-md' ),
-					'desc'  => githuber_load_view( 'setting/about-github-repo' ),
+					'label' => __('GitHub Repository', 'wp-githuber-md'),
+					'desc'  => githuber_load_view('setting/about-github-repo'),
 					'type'  => 'html',
 				),
 
 				array(
 					'name'  => 'plugin_theme',
-					'label' => __( 'Theme', 'wp-githuber-md' ),
-					'desc'  => githuber_load_view( 'setting/theme-description' ),
+					'label' => __('Theme', 'wp-githuber-md'),
+					'desc'  => githuber_load_view('setting/theme-description'),
 					'type'  => 'html',
 				),
 			),
@@ -1233,19 +1296,20 @@ class Setting extends ControllerAbstract {
 	/**
 	 * Register the plugin page.
 	 */
-	public function setting_admin_menu() {
-		switch ( $this->menu_position ) {
+	public function setting_admin_menu()
+	{
+		switch ($this->menu_position) {
 			case 'menu':
 			case 'plugins':
 			case 'options':
 			default:
 				$menu_function = 'add_' . $this->menu_position . '_page';
 				$menu_function(
-					__( 'WP Githuber MD ', 'wp-githuber-md' ),
-					__( 'WP Githuber MD', 'wp-githuber-md' ),
+					__('WP Githuber MD ', 'wp-githuber-md'),
+					__('WP Githuber MD', 'wp-githuber-md'),
 					'manage_options',
 					$this->menu_slug,
-					array( $this, 'setting_plugin_page' )
+					array($this, 'setting_plugin_page')
 				);
 				break;
 		}
@@ -1254,15 +1318,16 @@ class Setting extends ControllerAbstract {
 	/**
 	 * Display the plugin settings options page.
 	 */
-	public function setting_plugin_page() {
+	public function setting_plugin_page()
+	{
 
 		$git_url_plugin = 'https://github.com/terrylinooo/githuber-md';
 
 		echo '<div class="githuber-md-info-bar">';
 		echo '	<div class="logo-info"><img src="' . GITHUBER_PLUGIN_URL . '/assets/images/logo.png" class="githuber-md-logo"></div>';
 		echo '	<div class="version-info">';
-		echo '    <a href="' . $git_url_plugin . '/issues" target="_blank">' . __( 'Report an issue', 'wp-githuber-md' ) . '</a>  ';
-		echo '    ' . __( 'Version', 'wp-githuber-md' ) . ': <a href="' . $git_url_plugin . '" target="_blank">' . GITHUBER_PLUGIN_VERSION . '</a>  ';
+		echo '    <a href="' . $git_url_plugin . '/issues" target="_blank">' . __('Report an issue', 'wp-githuber-md') . '</a>  ';
+		echo '    ' . __('Version', 'wp-githuber-md') . ': <a href="' . $git_url_plugin . '" target="_blank">' . GITHUBER_PLUGIN_VERSION . '</a>  ';
 		echo '  </div>';
 		echo '</div>';
 		echo '<div class="wrap">';
@@ -1272,8 +1337,8 @@ class Setting extends ControllerAbstract {
 		self::$setting_api->show_navigation();
 		self::$setting_api->show_forms();
 
-		echo '<div>' . __( 'Maintain social distancing. Wash your hands frequently.', 'wp-githuber-md' ) . '</div>';
-		echo '<div>' . __( 'Stay at home. Write your articles with Githuber MD.', 'wp-githuber-md' ) . '</div>';
+		echo '<div>' . __('Maintain social distancing. Wash your hands frequently.', 'wp-githuber-md') . '</div>';
+		echo '<div>' . __('Stay at home. Write your articles with Githuber MD.', 'wp-githuber-md') . '</div>';
 
 		echo '</div>';
 	}
@@ -1285,13 +1350,14 @@ class Setting extends ControllerAbstract {
 	 * @param  string $file  File position.
 	 * @return array Combined links.
 	 */
-	public function plugin_action_links( $links, $file ) {
-		if ( ! current_user_can( 'manage_options' ) ) {
+	public function plugin_action_links($links, $file)
+	{
+		if (! current_user_can('manage_options')) {
 			return $links;
 		}
 
-		if ( $file === $this->githuber_plugin_name ) {
-			$links[] = '<a href="' . admin_url( 'options-general.php?page=' . $this->menu_slug ) . '">' . __( 'Settings', 'wp-githuber-md' ) . '</a>';
+		if ($file === $this->githuber_plugin_name) {
+			$links[] = '<a href="' . admin_url('options-general.php?page=' . $this->menu_slug) . '">' . __('Settings', 'wp-githuber-md') . '</a>';
 			return $links;
 		}
 	}
@@ -1303,14 +1369,15 @@ class Setting extends ControllerAbstract {
 	 * @param  string $file  File position.
 	 * @return array Combined links.
 	 */
-	public function plugin_extend_links( $links, $file ) {
-		if ( ! current_user_can( 'install_plugins' ) ) {
+	public function plugin_extend_links($links, $file)
+	{
+		if (! current_user_can('install_plugins')) {
 			return $links;
 		}
 
-		if ( $file == $this->githuber_plugin_name ) {
-			$links[] = '<a href="https://github.com/terrylinooo/githuber-md" target="_blank">' . __( 'View GitHub project', 'wp-githuber-md' ) . '</a>';
-			$links[] = '<a href="https://github.com/terrylinooo/githuber-md/issues" target="_blank">' . __( 'Report issues', 'wp-githuber-md' ) . '</a>';
+		if ($file == $this->githuber_plugin_name) {
+			$links[] = '<a href="https://github.com/terrylinooo/githuber-md" target="_blank">' . __('View GitHub project', 'wp-githuber-md') . '</a>';
+			$links[] = '<a href="https://github.com/terrylinooo/githuber-md/issues" target="_blank">' . __('Report issues', 'wp-githuber-md') . '</a>';
 		}
 		return $links;
 	}
