@@ -273,7 +273,7 @@ if (typeof mermaid_counter === "undefined") {
       link: "fa-link",
       "reference-link": "fa-anchor",
       image: "fa-picture-o",
-      youtube: "fa-youtube-play",
+      youtube: "fa-youtube",
       movie: "fa-file-video-o",
       code: "fa-code",
       "preformatted-text": "fa-file-code-o",

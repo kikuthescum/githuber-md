@@ -37,12 +37,17 @@
 
         var dialogContent = `<form action="${action}" target="${iframeName}" method="post" enctype="multipart/form-data" class="${classPrefix}form">
         <label style="width:55px">${movieLang.file}</label>
-        <div style="display:flex;align-items: end;margin-bottom:1rem">
-        <input type=\"text\" style="width:200px" data-url />
-        <div class="${classPrefix}file-input">
-        <input type="file" name="${classPrefix}movie-file" accept="video/*" />
-        <input type="submit" value="${movieLang.uploadButton}" />
-        </div>
+        <div style="margin-bottom:1rem">
+          <div style="display:flex;align-items:end;margin-bottom:.5rem;">
+            <input type=\"text\" style="width:200px" data-url />
+            <div class="${classPrefix}file-input">
+              <input type="file" name="${classPrefix}movie-file" accept="video/*" />
+              <input type="submit" value="${movieLang.uploadButton}" />
+            </div>
+          </div>
+          <div id="progress-container" style="display: none;">
+            <div id="progress-bar" style="width:0%; height:5px;background-color:#013275;transition:width 0.5s;border-radius:10px;"></div>
+          </div>
         </div>
         </form>`;
 
@@ -62,32 +67,16 @@
             enter: [
               lang.buttons.enter,
               function () {
-                return false;
-
-                var altAttr = alt !== "" ? ' "' + alt + '"' : "";
-
-                if (link === "" || link === "http://") {
-                  cm.replaceSelection("![" + alt + "](" + url + altAttr + ")");
+                let fileName = dialog.find("[data-url]").val();
+                let fileExtension = fileName.split(".").pop();
+                if (fileName) {
+                  let html = `<video controls><source src='${fileName}' type='video/${fileExtension}'>Your browser does not support the video tag.</video>\r\n`;
+                  cm.replaceSelection(html);
                 } else {
-                  cm.replaceSelection(
-                    "[![" +
-                      alt +
-                      "](" +
-                      url +
-                      altAttr +
-                      ")](" +
-                      link +
-                      altAttr +
-                      ")"
-                  );
+                  alert("ファイルが選択されていません。");
+                  return false;
                 }
-
-                if (alt === "") {
-                  cm.setCursor(cursor.line, cursor.ch + 2);
-                }
-
                 this.hide().lockScreen(false).hideMask();
-
                 return false;
               },
             ],
@@ -125,19 +114,61 @@
             return false;
           }
 
-          loading(true);
-
           var submitHandler = function () {
             console.log("submitHandler");
-            var movieFile = fileInput[0].files[0];
-            var movieUploader = new MovieUpload({
-              onFileUploaded: function (filename) {
-                console.log("File uploaded: " + filename);
-                loading(false);
-                dialog.find("[data-url]").val(filename);
-              },
-            });
-            movieUploader.uploadFile(movieFile);
+            let movieFile = fileInput[0].files[0];
+            let formData = new FormData();
+            formData.append("file", movieFile);
+            formData.append("action", "githuber_movie_upload");
+            formData.append("_wpnonce", ajax_object.nonce);
+
+            // loading(true);
+            var progressContainer =
+              document.getElementById("progress-container");
+            progressContainer.style.display = "block";
+            let lastPercent = 0;
+            axios
+              .post(ajax_object.ajaxurl, formData, {
+                headers: {
+                  "Content-Type": "multipart/form-data",
+                },
+                onUploadProgress: function (progressEvent) {
+                  var percentCompleted = Math.round(
+                    (progressEvent.loaded * 100) / progressEvent.total
+                  );
+
+                  if (
+                    percentCompleted - lastPercent >= 5 ||
+                    percentCompleted === 100
+                  ) {
+                    var progressBar = document.getElementById("progress-bar");
+                    progressBar.style.width = percentCompleted + "%";
+                    console.log("Uploading: " + percentCompleted + "%");
+                    lastPercent = percentCompleted;
+                  }
+                },
+              })
+              .then(function (response) {
+                let result = response.data;
+                if (result.success) {
+                  console.log("Upload successful:", result);
+
+                  var fileName = result.data?.filename;
+                  console.log(fileName);
+                  if (fileName) {
+                    dialog.find("[data-url]").val(fileName);
+                  }
+                } else {
+                  console.error("Upload Error:", result.message);
+                }
+              })
+              .catch(function (error) {
+                console.error("Request Error:", error);
+              })
+              .finally(function () {
+                progressContainer.style.display = "none";
+                // loading(false);
+              });
           };
 
           dialog

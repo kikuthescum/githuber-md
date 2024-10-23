@@ -3590,9 +3590,22 @@
 .markdown-body ol,
 .markdown-body dl,
 .markdown-body table,
-.markdown-body pre {
+.markdown-body pre,
+.markdown-body video {
   margin-top: 0;
   margin-bottom: 16px;
+}
+.markdown-body video {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+}
+.markdown-body p video {
+  margin-bottom: 0;
+}
+.markdown-body iframe {
+  display: block;
+  aspect-ratio: 16 / 9;
+  margin-bottom: 16px !important;
 }
 .markdown-body hr {
   height: 0.25em !important;

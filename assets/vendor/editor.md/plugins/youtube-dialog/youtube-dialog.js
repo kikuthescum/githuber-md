@@ -78,7 +78,7 @@
 
                 var embedUrl = convertToEmbedUrl(url);
                 if (embedUrl) {
-                  var iframeStr = `<iframe width="100%" height="auto" style='display:block;aspect-ratio:16 / 9;margin-bottom:10px !important;' src="${embedUrl}" title="${
+                  var iframeStr = `<iframe width="100%" height="auto" src="${embedUrl}" title="${
                     title || "YouTube video player"
                   }" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>\r\n`;
 

@@ -846,6 +846,17 @@ class Setting extends ControllerAbstract
 					'parent'            => 'support_movie_upload',
 					'sanitize_callback' => 'sanitize_text_field',
 				),
+
+				array(
+					'name'              => 'cloudfront_distribution_domain',
+					'label'             => __('CloudFront distribution domain', 'wp-githuber-md'),
+					'desc'              => githuber_load_view('setting/movie-upload-s3-secret'),
+					'placeholder'       => '',
+					'type'              => 'text',
+					'default'           => '',
+					'parent'            => 'support_movie_upload',
+					'sanitize_callback' => 'sanitize_text_field',
+				),
 				// movie-upload
 
 				array(
