@@ -381,11 +381,12 @@ if (typeof mermaid_counter === "undefined") {
           urlError: "错误：链接地址不正确。",
         },
         movie: {
-          title: "影片上传",
+          title: "视频上传",
           file: "文件",
           uploadButton: "上传",
-          formatNotAllowed:
-            "错误: 只允许上传视频文件，允许上传的视频文件格式有:",
+          formatNotAllowed: "错误：仅允许上传视频文件，允许的视频文件格式有 : ",
+          fileNotSelected: "错误：未选择文件。",
+          fetchingPresigned: "获取预签名URL时出错 : ",
         },
         preformattedText: {
           title: "添加预格式文本或代码块",

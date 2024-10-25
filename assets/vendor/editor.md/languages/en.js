@@ -89,7 +89,9 @@
           file: "File",
           uploadButton: "Upload",
           formatNotAllowed:
-            "Error: only allows to upload video files, upload allowed video file formats:",
+            "Error: only allows to upload video files, upload allowed video file formats : ",
+          fileNotSelected: "Error: No file selected.",
+          fetchingPresigned: "Error fetching presigned URL : ",
         },
         preformattedText: {
           title: "Preformatted text / Codes",

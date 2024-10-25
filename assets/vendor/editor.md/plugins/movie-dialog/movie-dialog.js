@@ -1,41 +1,35 @@
 (function () {
-  var factory = function (exports) {
-    var pluginName = "movie-dialog";
+  let factory = function (exports) {
+    const pluginName = "movie-dialog";
 
     exports.fn.movieDialog = function () {
-      var _this = this;
-      var cm = this.cm;
-      var lang = this.lang;
-      var editor = this.editor;
-      var settings = this.settings;
-      // console.log(settings);
+      const cm = this.cm;
+      const lang = this.lang;
+      const editor = this.editor;
+      const settings = this.settings;
+      const movieLang = lang.dialog.movie;
+      const classPrefix = this.classPrefix;
 
-      var config = window.editormd_config;
-      var cursor = cm.getCursor();
-      var selection = cm.getSelection();
-      var movieLang = lang.dialog.movie;
-      var classPrefix = this.classPrefix;
-
-      var iframeName = classPrefix + "movie-iframe";
-      var dialogName = classPrefix + pluginName,
+      const iframeName = classPrefix + "movie-iframe";
+      let dialogName = classPrefix + pluginName,
         dialog;
 
       cm.focus();
 
-      var loading = function (show) {
-        var _loading = dialog.find("." + classPrefix + "dialog-mask");
+      let loading = function (show) {
+        let _loading = dialog.find("." + classPrefix + "dialog-mask");
         _loading[show ? "show" : "hide"]();
       };
 
       if (editor.find("." + dialogName).length < 1) {
-        var guid = new Date().getTime();
-        var action =
+        const guid = new Date().getTime();
+        const action =
           settings.movieUploadCallback +
           (settings.movieUploadCallback.indexOf("?") >= 0 ? "&" : "?") +
           "guid=" +
           guid;
 
-        var dialogContent = `<form action="${action}" target="${iframeName}" method="post" enctype="multipart/form-data" class="${classPrefix}form">
+        const dialogContent = `<form action="${action}" target="${iframeName}" method="post" enctype="multipart/form-data" class="${classPrefix}form">
         <label style="width:55px">${movieLang.file}</label>
         <div style="margin-bottom:1rem">
           <div style="display:flex;align-items:end;margin-bottom:.5rem;">
@@ -45,8 +39,8 @@
               <input type="submit" value="${movieLang.uploadButton}" />
             </div>
           </div>
-          <div id="progress-container" style="display: none;">
-            <div id="progress-bar" style="width:0%; height:5px;background-color:#013275;transition:width 0.5s;border-radius:10px;"></div>
+          <div id="progress-container" style="display:none;background:rgba(1, 50, 117,.2)">
+            <div id="progress-bar" style="width:0%;height:10px;background-color:#013275;transition:width 0.5s;"></div>
           </div>
         </div>
         </form>`;
@@ -67,107 +61,136 @@
             enter: [
               lang.buttons.enter,
               function () {
-                let fileName = dialog.find("[data-url]").val();
-                let fileExtension = fileName.split(".").pop();
+                const fileName = dialog.find("[data-url]").val();
+                const isMovie = new RegExp(
+                  "(\\.(" + settings.movieFormats.join("|") + "))$"
+                );
+                if (!isMovie.test(fileName)) {
+                  alert(
+                    movieLang.formatNotAllowed +
+                      settings.movieFormats.join(", ")
+                  );
+                  dialog.find('[type="file"]').val("");
+                  dialog.find("[data-url]").val("");
+                  return false;
+                }
+                const fileExtension = fileName.split(".").pop();
                 if (fileName) {
-                  let html = `<video controls><source src='${fileName}' type='video/${fileExtension}'>Your browser does not support the video tag.</video>\r\n`;
+                  const html = `<video controls><source src='${fileName}' type='video/${fileExtension}'>Your browser does not support the video tag.</video>\r\n`;
                   cm.replaceSelection(html);
                 } else {
-                  alert("ファイルが選択されていません。");
+                  alert(movieLang.fileNotSelected);
                   return false;
                 }
                 this.hide().lockScreen(false).hideMask();
                 return false;
               },
             ],
-
             cancel: [
               lang.buttons.cancel,
               function () {
+                dialog.find('[type="file"]').val("");
+                dialog.find("[data-url]").val("");
                 this.hide().lockScreen(false).hideMask();
-
                 return false;
               },
             ],
           },
         });
-
         dialog.attr("id", classPrefix + "movie-dialog-" + guid);
-
         if (!settings.movieUpload) {
           return;
         }
-
-        var fileInput = dialog.find('[name="' + classPrefix + 'movie-file"]');
-
+        const fileInput = dialog.find('[name="' + classPrefix + 'movie-file"]');
         fileInput.bind("change", function () {
-          var fileName = fileInput.val();
-
-          var isMovie = new RegExp(
+          const fileName = fileInput.val();
+          const isMovie = new RegExp(
             "(\\.(" + settings.movieFormats.join("|") + "))$"
           );
-
           if (!isMovie.test(fileName)) {
             alert(
               movieLang.formatNotAllowed + settings.movieFormats.join(", ")
             );
+            dialog.find('[type="file"]').val("");
             return false;
           }
+          const getPresignedUrl = async (file) => {
+            loading(true);
+            const postDate = (() => {
+              const date = new Date();
+              const year = String(date.getFullYear()).slice(-2);
+              const month = String(date.getMonth() + 1).padStart(2, "0");
+              const day = String(date.getDate()).padStart(2, "0");
 
-          var submitHandler = function () {
-            console.log("submitHandler");
-            let movieFile = fileInput[0].files[0];
-            let formData = new FormData();
-            formData.append("file", movieFile);
-            formData.append("action", "githuber_movie_upload");
-            formData.append("_wpnonce", ajax_object.nonce);
+              return `${year}${month}${day}`;
+            })();
+            const key =
+              "movies/" + postDate + "/" + encodeURIComponent(file.name);
+            return await axios
+              .get(ajax_object.ajaxurl, {
+                params: {
+                  action: "githuber_presigned_url",
+                  key: key,
+                  contentType: file.type,
+                },
+              })
+              .then((res) => {
+                return res.data;
+              })
+              .catch((err) => {
+                dialog.find('[type="file"]').val("");
+                alert(movieLang.fetchingPresigned + err);
+                console.error("Error fetching presigned URL: ", err);
+                throw err;
+              })
+              .finally(function () {
+                loading(false);
+              });
+          };
 
-            // loading(true);
-            var progressContainer =
-              document.getElementById("progress-container");
-            progressContainer.style.display = "block";
+          const submitHandler = async () => {
+            // console.log("submitHandler");
+            const file = fileInput[0].files[0];
+
+            const presignedUrlData = await getPresignedUrl(file);
+
             let lastPercent = 0;
-            axios
-              .post(ajax_object.ajaxurl, formData, {
+            let formData = new FormData();
+            formData.append("file", file);
+            const progressContainer =
+              document.getElementById("progress-container");
+            const progressBar = document.getElementById("progress-bar");
+            progressContainer.style.display = "block";
+            return await axios
+              .put(presignedUrlData.url, file, {
                 headers: {
-                  "Content-Type": "multipart/form-data",
+                  "Content-Type": file.type,
                 },
                 onUploadProgress: function (progressEvent) {
-                  var percentCompleted = Math.round(
+                  let percentCompleted = Math.round(
                     (progressEvent.loaded * 100) / progressEvent.total
                   );
-
                   if (
                     percentCompleted - lastPercent >= 5 ||
                     percentCompleted === 100
                   ) {
-                    var progressBar = document.getElementById("progress-bar");
                     progressBar.style.width = percentCompleted + "%";
-                    console.log("Uploading: " + percentCompleted + "%");
                     lastPercent = percentCompleted;
                   }
                 },
               })
-              .then(function (response) {
-                let result = response.data;
-                if (result.success) {
-                  console.log("Upload successful:", result);
-
-                  var fileName = result.data?.filename;
-                  console.log(fileName);
-                  if (fileName) {
-                    dialog.find("[data-url]").val(fileName);
-                  }
-                } else {
-                  console.error("Upload Error:", result.message);
-                }
+              .then((res) => {
+                // console.log("File successfully uploaded", res);
+                dialog.find("[data-url]").val(presignedUrlData.path);
               })
-              .catch(function (error) {
-                console.error("Request Error:", error);
+              .catch((err) => {
+                // console.error("Error uploading file:", err);
+                alert(movieLang.formatNotAllowed);
               })
               .finally(function () {
+                dialog.find('[type="file"]').val("");
                 progressContainer.style.display = "none";
-                // loading(false);
+                progressBar.style.width = 0;
               });
           };
 
@@ -177,7 +200,6 @@
             .trigger("click");
         });
       }
-
       dialog = editor.find("." + dialogName);
       dialog.find('[type="file"]').val("");
       dialog.find("[data-url]").val("");
@@ -204,7 +226,7 @@
     } else {
       // for Sea.js
       define(function (require) {
-        var editormd = require("../../editormd");
+        let editormd = require("../../editormd");
         factory(editormd);
       });
     }

@@ -1,20 +1,18 @@
 (function () {
-  var factory = function (exports) {
-    var pluginName = "youtube-dialog";
+  let factory = function (exports) {
+    const pluginName = "youtube-dialog";
 
     exports.fn.youtubeDialog = function () {
-      var cm = this.cm;
-      var editor = this.editor;
-      var settings = this.settings;
-      var selection = cm.getSelection();
-      var lang = this.lang;
-      var youtubeLang = lang.dialog.youtube;
-      var classPrefix = this.classPrefix;
-      var dialogName = classPrefix + pluginName,
+      const cm = this.cm;
+      const editor = this.editor;
+      const settings = this.settings;
+      const selection = cm.getSelection();
+      const lang = this.lang;
+      const youtubeLang = lang.dialog.youtube;
+      const classPrefix = this.classPrefix;
+      let dialogName = classPrefix + pluginName,
         dialog;
-
       cm.focus();
-
       if (editor.find("." + dialogName).length > 0) {
         dialog = editor.find("." + dialogName);
         dialog.find("[data-title]").val(selection);
@@ -23,7 +21,7 @@
         this.dialogLockScreen();
         dialog.show();
       } else {
-        var dialogHTML =
+        const dialogHTML =
           '<div class="' +
           classPrefix +
           'form">' +
@@ -56,14 +54,12 @@
             enter: [
               lang.buttons.enter,
               function () {
-                var url = this.find("[data-url]").val();
-                var title = this.find("[data-title]").val();
-
+                const url = this.find("[data-url]").val();
+                const title = this.find("[data-title]").val();
                 if (url === "") {
                   alert(youtubeLang.urlEmpty);
                   return false;
                 }
-
                 function convertToEmbedUrl(url) {
                   try {
                     const urlObj = new URL(url);
@@ -75,24 +71,20 @@
                     return null;
                   }
                 }
-
-                var embedUrl = convertToEmbedUrl(url);
+                const embedUrl = convertToEmbedUrl(url);
                 if (embedUrl) {
-                  var iframeStr = `<iframe width="100%" height="auto" src="${embedUrl}" title="${
+                  const iframeStr = `<iframe width="100%" height="auto" src="${embedUrl}" title="${
                     title || "YouTube video player"
                   }" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>\r\n`;
-
                   cm.replaceSelection(iframeStr);
                 } else {
                   alert(youtubeLang.urlError);
                   return false;
                 }
                 this.hide().lockScreen(false).hideMask();
-
                 return false;
               },
             ],
-
             cancel: [
               lang.buttons.cancel,
               function () {
@@ -124,7 +116,7 @@
     } else {
       // for Sea.js
       define(function (require) {
-        var editormd = require("./../../editormd");
+        let editormd = require("./../../editormd");
         factory(editormd);
       });
     }
