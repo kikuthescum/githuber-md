@@ -30,16 +30,16 @@
           guid;
 
         const dialogContent = `<form action="${action}" target="${iframeName}" method="post" enctype="multipart/form-data" class="${classPrefix}form">
-        <label style="width:55px">${movieLang.file}</label>
         <div style="margin-bottom:1rem">
-          <div style="display:flex;align-items:end;margin-bottom:.5rem;">
-            <input type=\"text\" style="width:200px" data-url />
-            <div class="${classPrefix}file-input">
-              <input type="file" name="${classPrefix}movie-file" accept="video/*" />
-              <input type="submit" value="${movieLang.uploadButton}" />
-            </div>
+         <div style="display:flex;align-items:end;margin-bottom:.5rem;">
+          <label style="width:55px;align-self:center;">${movieLang.file}</label>
+          <input type=\"text\" style="width:200px" data-url />
+          <div class="${classPrefix}file-input">
+            <input type="file" name="${classPrefix}movie-file" accept="video/*" />
+            <input type="submit" value="${movieLang.uploadButton}" />
           </div>
-          <div id="progress-container" style="display:none;background:rgba(1, 50, 117,.2)">
+          </div>
+          <div id="progress-container" style="display:none;background:rgba(1, 50, 117,.2);margin-top:1rem">
             <div id="progress-bar" style="width:0%;height:10px;background-color:#013275;transition:width 0.5s;"></div>
           </div>
         </div>
@@ -76,7 +76,7 @@
                 }
                 const fileExtension = fileName.split(".").pop();
                 if (fileName) {
-                  const html = `<video controls><source src='${fileName}' type='video/${fileExtension}'>Your browser does not support the video tag.</video>\r\n`;
+                  const html = `<video controls playsinline><source src='${fileName}' type='video/${fileExtension}'>Your browser does not support the video tag.</video>\r\n`;
                   cm.replaceSelection(html);
                 } else {
                   alert(movieLang.fileNotSelected);

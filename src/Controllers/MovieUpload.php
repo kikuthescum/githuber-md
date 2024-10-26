@@ -91,8 +91,8 @@ class MovieUpload extends ControllerAbstract
 	 */
 	public function admin_githuber_presigned_url()
 	{
-		$key = isset($_GET['key']) ? $_GET['key'] : '';
-		$contentType = isset($_GET['contentType']) ? $_GET['contentType'] : '';
+		$key = isset($_GET['key']) ? sanitize_text_field($_GET['key']) : '';
+		$contentType = isset($_GET['contentType']) ? sanitize_text_field($_GET['contentType']) : '';
 
 		if (empty($key) || empty($contentType)) {
 			wp_send_json_error('Invalid parameters.', 400);
