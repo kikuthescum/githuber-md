@@ -33,7 +33,8 @@
         <div style="margin-bottom:1rem">
          <div style="display:flex;align-items:end;margin-bottom:.5rem;">
           <label style="width:55px;align-self:center;">${movieLang.file}</label>
-          <input type=\"text\" style="width:200px" data-url />
+          <input type=\"text\" style="width:200px" file-name />
+          <input type=\"text\" style="display:none;" data-url />
           <div class="${classPrefix}file-input">
             <input type="file" name="${classPrefix}movie-file" accept="video/*" />
             <input type="submit" value="${movieLang.uploadButton}" />
@@ -70,8 +71,7 @@
                     movieLang.formatNotAllowed +
                       settings.movieFormats.join(", ")
                   );
-                  dialog.find('[type="file"]').val("");
-                  dialog.find("[data-url]").val("");
+                  reset();
                   return false;
                 }
                 const fileExtension = fileName.split(".").pop();
@@ -89,8 +89,7 @@
             cancel: [
               lang.buttons.cancel,
               function () {
-                dialog.find('[type="file"]').val("");
-                dialog.find("[data-url]").val("");
+                reset();
                 this.hide().lockScreen(false).hideMask();
                 return false;
               },
@@ -101,6 +100,11 @@
         if (!settings.movieUpload) {
           return;
         }
+        const reset = () => {
+          dialog.find('[type="file"]').val("");
+          dialog.find("[file-name]").val("");
+          dialog.find("[data-url]").val("");
+        };
         const fileInput = dialog.find('[name="' + classPrefix + 'movie-file"]');
         fileInput.bind("change", function () {
           const fileName = fileInput.val();
@@ -111,7 +115,7 @@
             alert(
               movieLang.formatNotAllowed + settings.movieFormats.join(", ")
             );
-            dialog.find('[type="file"]').val("");
+            reset();
             return false;
           }
           const getPresignedUrl = async (file) => {
@@ -138,20 +142,19 @@
                 return res.data;
               })
               .catch((err) => {
-                dialog.find('[type="file"]').val("");
+                reset();
                 alert(movieLang.fetchingPresigned + err);
-                console.error("Error fetching presigned URL: ", err);
+                // console.error("Error fetching presigned URL: ", err);
                 throw err;
               })
               .finally(function () {
                 loading(false);
               });
           };
-
           const submitHandler = async () => {
             // console.log("submitHandler");
             const file = fileInput[0].files[0];
-
+            dialog.find("[file-name]").val(file.name);
             const presignedUrlData = await getPresignedUrl(file);
 
             let lastPercent = 0;
@@ -202,6 +205,7 @@
       }
       dialog = editor.find("." + dialogName);
       dialog.find('[type="file"]').val("");
+      dialog.find("[file-name]").val("");
       dialog.find("[data-url]").val("");
       this.dialogShowMask(dialog);
       this.dialogLockScreen();
