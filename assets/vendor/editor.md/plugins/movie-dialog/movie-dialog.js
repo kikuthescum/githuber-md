@@ -76,7 +76,7 @@
                 }
                 const fileExtension = fileName.split(".").pop();
                 if (fileName) {
-                  const html = `<video controls playsinline><source src='${fileName}' type='video/${fileExtension}'>Your browser does not support the video tag.</video>\r\n`;
+                  const html = `<video controls playsinline><source src='${fileName}' type='video/${fileExtension}'>Your browser does not support the video tag.</video>`;
                   cm.replaceSelection(html);
                 } else {
                   alert(movieLang.fileNotSelected);
@@ -100,6 +100,7 @@
         if (!settings.movieUpload) {
           return;
         }
+        let lastPercent = 0;
         const reset = () => {
           dialog.find('[type="file"]').val("");
           dialog.find("[file-name]").val("");
@@ -119,7 +120,6 @@
             return false;
           }
           const getPresignedUrl = async (file) => {
-            loading(true);
             const postDate = (() => {
               const date = new Date();
               const year = String(date.getFullYear()).slice(-2);
@@ -146,31 +146,27 @@
                 alert(movieLang.fetchingPresigned + err);
                 // console.error("Error fetching presigned URL: ", err);
                 throw err;
-              })
-              .finally(function () {
-                loading(false);
               });
           };
           const submitHandler = async () => {
             // console.log("submitHandler");
+            loading(true);
             const file = fileInput[0].files[0];
             dialog.find("[file-name]").val(file.name);
             const presignedUrlData = await getPresignedUrl(file);
 
-            let lastPercent = 0;
-            let formData = new FormData();
-            formData.append("file", file);
             const progressContainer =
               document.getElementById("progress-container");
             const progressBar = document.getElementById("progress-bar");
             progressContainer.style.display = "block";
-            return await axios
-              .put(presignedUrlData.url, file, {
+
+            try {
+              await axios.put(presignedUrlData.url, file, {
                 headers: {
                   "Content-Type": file.type,
                 },
                 onUploadProgress: function (progressEvent) {
-                  let percentCompleted = Math.round(
+                  const percentCompleted = Math.round(
                     (progressEvent.loaded * 100) / progressEvent.total
                   );
                   if (
@@ -181,20 +177,17 @@
                     lastPercent = percentCompleted;
                   }
                 },
-              })
-              .then((res) => {
-                // console.log("File successfully uploaded", res);
-                dialog.find("[data-url]").val(presignedUrlData.path);
-              })
-              .catch((err) => {
-                // console.error("Error uploading file:", err);
-                alert(movieLang.formatNotAllowed);
-              })
-              .finally(function () {
-                dialog.find('[type="file"]').val("");
-                progressContainer.style.display = "none";
-                progressBar.style.width = 0;
               });
+              dialog.find("[data-url]").val(presignedUrlData.path);
+            } catch (error) {
+              alert(movieLang.uploadError);
+            } finally {
+              dialog.find('[type="file"]').val("");
+              progressContainer.style.display = "none";
+              progressBar.style.width = 0;
+              lastPercent = 0;
+              loading(false);
+            }
           };
 
           dialog

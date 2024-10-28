@@ -92,6 +92,7 @@
             "Error: only allows to upload video files, upload allowed video file formats : ",
           fileNotSelected: "Error: No file selected.",
           fetchingPresigned: "Error fetching presigned URL : ",
+          uploadError: "An error occurred during the file upload.",
         },
         preformattedText: {
           title: "Preformatted text / Codes",
