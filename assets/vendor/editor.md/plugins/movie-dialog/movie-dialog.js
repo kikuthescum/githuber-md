@@ -76,7 +76,7 @@
                 }
                 const fileExtension = fileName.split(".").pop();
                 if (fileName) {
-                  const html = `<video controls playsinline><source src='${fileName}' type='video/${fileExtension}'>Your browser does not support the video tag.</video>`;
+                  const html = `<video controls playsinline><source src='${fileName}' type='video/${fileExtension}'>Your browser does not support the video tag.</video>\r\n`;
                   cm.replaceSelection(html);
                 } else {
                   alert(movieLang.fileNotSelected);
@@ -106,8 +106,78 @@
           dialog.find("[file-name]").val("");
           dialog.find("[data-url]").val("");
         };
+        const getPresignedUrl = async (file) => {
+          const postDate = (() => {
+            const date = new Date();
+            const year = String(date.getFullYear()).slice(-2);
+            const month = String(date.getMonth() + 1).padStart(2, "0");
+            const day = String(date.getDate()).padStart(2, "0");
+
+            return `${year}${month}${day}`;
+          })();
+          const key =
+            "movies/" + postDate + "/" + encodeURIComponent(file.name);
+          return await axios
+            .get(ajax_object.ajaxurl, {
+              params: {
+                action: "githuber_presigned_url",
+                key: key,
+                contentType: file.type,
+              },
+            })
+            .then((res) => {
+              return res.data;
+            })
+            .catch((err) => {
+              reset();
+              alert(movieLang.fetchingPresigned + err);
+              // console.error("Error fetching presigned URL: ", err);
+              throw err;
+            });
+        };
+        const submitHandler = async () => {
+          // console.log("submitHandler");
+          loading(true);
+          const file = fileInput[0].files[0];
+          dialog.find("[file-name]").val(file.name);
+          const presignedUrlData = await getPresignedUrl(file);
+
+          const progressContainer =
+            document.getElementById("progress-container");
+          const progressBar = document.getElementById("progress-bar");
+          progressContainer.style.display = "block";
+
+          try {
+            await axios.put(presignedUrlData.url, file, {
+              headers: {
+                "Content-Type": file.type,
+              },
+              onUploadProgress: function (progressEvent) {
+                const percentCompleted = Math.round(
+                  (progressEvent.loaded * 100) / progressEvent.total
+                );
+                if (
+                  percentCompleted - lastPercent >= 5 ||
+                  percentCompleted === 100
+                ) {
+                  progressBar.style.width = percentCompleted + "%";
+                  lastPercent = percentCompleted;
+                }
+              },
+            });
+            dialog.find("[data-url]").val(presignedUrlData.path);
+          } catch (error) {
+            alert(movieLang.uploadError);
+          } finally {
+            dialog.find('[type="file"]').val("");
+            progressContainer.style.display = "none";
+            progressBar.style.width = 0;
+            lastPercent = 0;
+            loading(false);
+          }
+        };
         const fileInput = dialog.find('[name="' + classPrefix + 'movie-file"]');
-        fileInput.bind("change", function () {
+        fileInput.unbind("change").bind("change", function () {
           const fileName = fileInput.val();
           const isMovie = new RegExp(
             "(\\.(" + settings.movieFormats.join("|") + "))$"
@@ -119,79 +189,9 @@
             reset();
             return false;
           }
-          const getPresignedUrl = async (file) => {
-            const postDate = (() => {
-              const date = new Date();
-              const year = String(date.getFullYear()).slice(-2);
-              const month = String(date.getMonth() + 1).padStart(2, "0");
-              const day = String(date.getDate()).padStart(2, "0");
-
-              return `${year}${month}${day}`;
-            })();
-            const key =
-              "movies/" + postDate + "/" + encodeURIComponent(file.name);
-            return await axios
-              .get(ajax_object.ajaxurl, {
-                params: {
-                  action: "githuber_presigned_url",
-                  key: key,
-                  contentType: file.type,
-                },
-              })
-              .then((res) => {
-                return res.data;
-              })
-              .catch((err) => {
-                reset();
-                alert(movieLang.fetchingPresigned + err);
-                // console.error("Error fetching presigned URL: ", err);
-                throw err;
-              });
-          };
-          const submitHandler = async () => {
-            // console.log("submitHandler");
-            loading(true);
-            const file = fileInput[0].files[0];
-            dialog.find("[file-name]").val(file.name);
-            const presignedUrlData = await getPresignedUrl(file);
-
-            const progressContainer =
-              document.getElementById("progress-container");
-            const progressBar = document.getElementById("progress-bar");
-            progressContainer.style.display = "block";
-
-            try {
-              await axios.put(presignedUrlData.url, file, {
-                headers: {
-                  "Content-Type": file.type,
-                },
-                onUploadProgress: function (progressEvent) {
-                  const percentCompleted = Math.round(
-                    (progressEvent.loaded * 100) / progressEvent.total
-                  );
-                  if (
-                    percentCompleted - lastPercent >= 5 ||
-                    percentCompleted === 100
-                  ) {
-                    progressBar.style.width = percentCompleted + "%";
-                    lastPercent = percentCompleted;
-                  }
-                },
-              });
-              dialog.find("[data-url]").val(presignedUrlData.path);
-            } catch (error) {
-              alert(movieLang.uploadError);
-            } finally {
-              dialog.find('[type="file"]').val("");
-              progressContainer.style.display = "none";
-              progressBar.style.width = 0;
-              lastPercent = 0;
-              loading(false);
-            }
-          };
-
           dialog
             .find('[type="submit"]')
+            .unbind("click")
             .bind("click", submitHandler)
             .trigger("click");
         });
