@@ -15,29 +15,19 @@
       cm.focus();
       if (editor.find("." + dialogName).length > 0) {
         dialog = editor.find("." + dialogName);
-        dialog.find("[data-title]").val(selection);
-
         this.dialogShowMask(dialog);
         this.dialogLockScreen();
         dialog.show();
       } else {
-        const dialogHTML =
-          '<div class="' +
-          classPrefix +
-          'form">' +
-          "<label style='width:auto;'>" +
-          youtubeLang.url +
-          "</label>" +
-          '<input type="text" value="" data-url />' +
-          "<br/>" +
-          "<label>" +
-          youtubeLang.urlTitle +
-          "</label>" +
-          '<input type="text" value="' +
-          selection +
-          '" data-title />' +
-          "<br/>" +
-          "</div>";
+        const dialogHTML = `
+        <div class="${classPrefix}form">
+          <div style="margin-bottom:.5rem">
+            <label style="width:auto;">${youtubeLang.url}</label>
+            <input type="text" value="" data-url />
+            <label>${youtubeLang.urlTitle}</label>
+            <input type="text" data-title />
+          </div>
+        </div>`;
 
         dialog = this.createDialog({
           title: youtubeLang.title,

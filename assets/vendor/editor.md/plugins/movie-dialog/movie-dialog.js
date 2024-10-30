@@ -29,21 +29,26 @@
           "guid=" +
           guid;
 
-        const dialogContent = `<form action="${action}" target="${iframeName}" method="post" enctype="multipart/form-data" class="${classPrefix}form">
-        <div style="margin-bottom:1rem">
-         <div style="display:flex;align-items:end;margin-bottom:.5rem;">
-          <label style="width:55px;align-self:center;">${movieLang.file}</label>
-          <input type=\"text\" style="width:200px" file-name />
-          <input type=\"text\" style="display:none;" data-url />
-          <div class="${classPrefix}file-input">
-            <input type="file" name="${classPrefix}movie-file" accept="video/*" />
-            <input type="submit" value="${movieLang.uploadButton}" />
+        const dialogContent = `
+        <form action="${action}" target="${iframeName}" method="post" enctype="multipart/form-data" class="${classPrefix}form">
+          <div style="margin-bottom:.5rem">
+            <label style="width:100px;">${movieLang.file}</label>
+            <div style="display:inline-block;">
+              <div style="display:flex;align-items:end;">
+                <input type="text" file-name style="width:254px;"/>
+                <input type="text" style="display:none;" data-url />
+                <div class="${classPrefix}file-input">
+                  <input type="file" name="${classPrefix}movie-file" accept="video/*" />
+                  <input type="submit" value="${movieLang.uploadButton}" />
+                </div>
+              </div>
+            </div>
+            <div id="progress-container" style="display:none;background:rgba(1, 50, 117,.2);margin:1rem 0">
+              <div id="progress-bar" style="width:0%;height:10px;background-color:#013275;transition:width 0.5s;"></div>
+            </div>
+            <label style="width:100px;">${movieLang.movieTitle}</label>
+            <input type="text" movie-title style="width:254px;"/>
           </div>
-          </div>
-          <div id="progress-container" style="display:none;background:rgba(1, 50, 117,.2);margin-top:1rem">
-            <div id="progress-bar" style="width:0%;height:10px;background-color:#013275;transition:width 0.5s;"></div>
-          </div>
-        </div>
         </form>`;
 
         dialog = this.createDialog({
@@ -74,9 +79,12 @@
                   reset();
                   return false;
                 }
+                const movieTitle = dialog.find("[movie-title]").val();
                 const fileExtension = fileName.split(".").pop();
                 if (fileName) {
-                  const html = `<video controls playsinline><source src='${fileName}' type='video/${fileExtension}'>Your browser does not support the video tag.</video>\r\n`;
+                  const html = `<video controls playsinline ${
+                    movieTitle ? `title='${movieTitle}'` : ""
+                  }><source src='${fileName}' type='video/${fileExtension}'>Your browser does not support the video tag.</video>\r\n`;
                   cm.replaceSelection(html);
                 } else {
                   alert(movieLang.fileNotSelected);
@@ -105,6 +113,7 @@
           dialog.find('[type="file"]').val("");
           dialog.find("[file-name]").val("");
           dialog.find("[data-url]").val("");
+          dialog.find("[movie-title]").val("");
         };
         const getPresignedUrl = async (file) => {
           const postDate = (() => {
@@ -200,6 +209,7 @@
       dialog.find('[type="file"]').val("");
       dialog.find("[file-name]").val("");
       dialog.find("[data-url]").val("");
+      dialog.find("[movie-title]").val("");
       this.dialogShowMask(dialog);
       this.dialogLockScreen();
       dialog.show();

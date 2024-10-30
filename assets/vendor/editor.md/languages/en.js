@@ -86,6 +86,7 @@
         },
         movie: {
           title: "Movie Upload",
+          movieTitle: "Title",
           file: "File",
           uploadButton: "Upload",
           formatNotAllowed:

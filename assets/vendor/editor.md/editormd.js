@@ -382,6 +382,7 @@ if (typeof mermaid_counter === "undefined") {
         },
         movie: {
           title: "视频上传",
+          movieTitle: "标题",
           file: "文件",
           uploadButton: "上传",
           formatNotAllowed: "错误：仅允许上传视频文件，允许的视频文件格式有 : ",
