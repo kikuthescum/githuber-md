@@ -51,7 +51,7 @@ var spellcheck_lang = "en_US";
       movieUpload: config.support_movie_upload === "yes",
       movieUploadCallback: config.movie_upload_callback,
       toolbarIcons: function () {
-        return [
+        let icons = [
           "undo",
           "redo",
           "|",
@@ -77,7 +77,7 @@ var spellcheck_lang = "en_US";
           "reference-link",
           "image",
           "youtube",
-          config.support_movie_upload === "yes" ? "movie" : "|",
+          "|",
           "code",
           "code-block",
           "table",
@@ -89,10 +89,16 @@ var spellcheck_lang = "en_US";
           "watch",
           "preview",
           "fullscreen",
-          // config.support_emojify === "yes" ? "emoji" : "",
           "help",
         ];
+
+        if (config.support_movie_upload === "yes") {
+          icons.splice(icons.indexOf("youtube") + 1, 0, "movie");
+        }
+
+        return icons;
       },
+
       onfullscreen: function () {
         $(wp_editor_container).css({
           position: "fixed",
